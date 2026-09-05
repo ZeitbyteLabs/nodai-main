@@ -6,7 +6,7 @@ Public documentation for NodAI users, developers, and GPU operators.
 | --- | -------- |
 | [`UserGuide.md`](UserGuide.md) | End users — sign up, run inference, earn and claim NOD |
 | [`API.md`](API.md) | Developers — HTTP API reference |
-| [`NodeGuide.md`](NodeGuide.md) | GPU operators — register hardware and run jobs |
+| [`NodeGuide.md`](NodeGuide.md) | GPU operators — install vLLM, download models, run nodai-node |
 
 In the app: `/guide` (users) and `/host` (GPU hosts).
 

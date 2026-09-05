@@ -35,14 +35,14 @@ On the GPU computer:
 2. `cd nodai-node && npm install && npm link`
 3. `nodai-node start --platform https://nodai-main.vercel.app`
 
-Full steps: [public-docs/NodeGuide.md](public-docs/NodeGuide.md) or `/host` on the site.
+Full steps (vLLM install + model download): [public-docs/NodeGuide.md](public-docs/NodeGuide.md) or `/host` on the site.
 
 ## Docs
 
 | Doc | Purpose |
 | --- | ------- |
 | [`public-docs/UserGuide.md`](public-docs/UserGuide.md) | End users |
-| [`public-docs/NodeGuide.md`](public-docs/NodeGuide.md) | Host a GPU |
+| [`public-docs/NodeGuide.md`](public-docs/NodeGuide.md) | Host a GPU — vLLM install, model download, nodai-node |
 | [`public-docs/API.md`](public-docs/API.md) | HTTP API |
 | [`nodai-node/README.md`](nodai-node/README.md) | Node commands |
 
