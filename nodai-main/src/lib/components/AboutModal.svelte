@@ -21,9 +21,9 @@
 
 			<div class="mt-6 space-y-4 text-[0.9375rem] leading-relaxed text-fg-muted">
 				<p>
-					NodAI is an open network for sharing models, running AI, and earning NOD for the work
-					you contribute. Everything is recorded in a public ledger so the maths is always
-					checkable.
+					NodAI is an open network for sharing models, running AI, and earning NOD. Inference
+					runs on community GPUs — we do not rent RunPod or AWS for the model. Everything is
+					recorded so the maths is checkable.
 				</p>
 
 				<ol class="space-y-3">
@@ -33,7 +33,7 @@
 					</li>
 					<li class="flex gap-3">
 						<span class="font-mono text-accent-fg">2</span>
-						<span><strong class="text-fg">Run AI</strong> — send a prompt in the playground and get a real response.</span>
+						<span><strong class="text-fg">Run AI</strong> — send a prompt; a community GPU answers it.</span>
 					</li>
 					<li class="flex gap-3">
 						<span class="font-mono text-accent-fg">3</span>

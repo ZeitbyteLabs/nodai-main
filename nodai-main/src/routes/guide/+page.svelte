@@ -44,8 +44,8 @@
 			<div class="flex flex-col gap-4 text-[0.9375rem] leading-relaxed text-fg-muted">
 				<p>
 					Open the playground, write a prompt, adjust temperature and max tokens if you like, then
-					press <strong class="text-fg">Run</strong>. The response streams in real time from the
-					network's GPU.
+					press <strong class="text-fg">Run</strong>. The job waits until a community GPU running
+					nodai-node picks it up. If none are online, it stays queued.
 				</p>
 				<p>
 					Each completed run earns
@@ -72,6 +72,16 @@
 					join.
 				</p>
 				<Button href="/models" size="sm" variant="secondary">View models</Button>
+			</div>
+		</Panel>
+
+		<Panel label="6 · Host a GPU">
+			<div class="flex flex-col gap-4 text-[0.9375rem] leading-relaxed text-fg-muted">
+				<p>
+					NodAI does not run a cloud GPU. If you have an NVIDIA card at home, follow the Host GPU
+					page: start vLLM locally, then <span class="font-mono text-fg">nodai-node start</span>.
+				</p>
+				<Button href="/host" size="sm" variant="secondary">Host a GPU</Button>
 			</div>
 		</Panel>
 	</div>

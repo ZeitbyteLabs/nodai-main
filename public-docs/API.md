@@ -8,33 +8,19 @@ Base URL: your app origin (e.g. `http://localhost:5173`).
 
 ## User endpoints
 
+### `GET /api/jobs/:id`
+
+Poll a job you queued. Requires sign-in.
+
+**Response:** `{ job_id, status, response, tokens_used, latency_ms, reward, balance }`
+
+Status: `queued` → `running` → `completed` or `failed`.
+
+---
+
 ### `POST /api/inference`
 
-Run streaming inference (playground). Requires sign-in.
-
-**Body:**
-
-```json
-{
-  "prompt": "Hello",
-  "model_id": "uuid",
-  "temperature": 0.7,
-  "max_tokens": 512
-}
-```
-
-**Response:** Server-sent events stream.
-
-
-| Event   | Fields                                           |
-| ------- | ------------------------------------------------ |
-| `start` | `balance`                                        |
-| `delta` | `text`                                           |
-| `done`  | `balance`, `tokens_used`, `latency_ms`, `reward` |
-| `error` | `message`                                        |
-
-
-Costs **0.01 NOD** per run; earns **0.005 NOD** reward on success.
+Retired. Use `POST /api/jobs`. The platform does not run a cloud GPU.
 
 ---
 

@@ -1,25 +1,36 @@
-import { configPath, loadConfig, maskToken, resolvePlatformUrl, resolveVllmUrl, saveConfig } from './config.mjs';
+import { hostname } from 'node:os';
+import {
+	configPath,
+	existsConfig,
+	loadConfig,
+	maskToken,
+	resolvePlatformUrl,
+	resolveVllmUrl,
+	saveConfig
+} from './config.mjs';
 import { listNodes, registerNode } from './platform.mjs';
+import { ask, say } from './prompt.mjs';
 import { checkVllm } from './vllm.mjs';
 import { runForever, runOnce } from './run.mjs';
 
 function usage() {
-	console.log(`
-NodAI GPU Node CLI
+	say(`
+NodAI GPU Node — connect THIS computer to NodAI
 
-Usage:
-  nodai-node register --platform <url> --label <name> [--vllm <url>]
-  nodai-node run              Start the worker loop (heartbeat + jobs)
-  nodai-node run --once       Process one job then exit
-  nodai-node status           Check platform + vLLM connectivity
-  nodai-node config           Show saved config
+One command for most people:
+  nodai-node start
 
-Environment:
-  NODAI_PLATFORM_URL   Platform base URL (default http://localhost:5173)
-  VLLM_API_URL         Local vLLM URL (default http://127.0.0.1:8000)
-  VLLM_API_KEY         Optional vLLM API key
+That asks a few questions, registers this PC, and waits for jobs.
 
-Config is saved to ./.nodai/node.json
+Other commands:
+  nodai-node start --platform https://nodai-main.vercel.app
+  nodai-node status
+  nodai-node setup
+  nodai-node run              (already registered)
+  nodai-node run --once
+
+Local AI server (vLLM) must already be running on this machine.
+Default: http://127.0.0.1:8000
 `);
 }
 
@@ -49,34 +60,74 @@ function parseArgs(argv) {
 	return { command, flags };
 }
 
-async function cmdRegister(flags) {
-	const platformUrl = resolvePlatformUrl(flags.platform);
-	const vllmUrl = resolveVllmUrl(flags.vllm);
-	const label = flags.label ? String(flags.label) : null;
+async function collectSetup(flags) {
+	const platformUrl = resolvePlatformUrl(
+		flags.platform ?? (await ask('NodAI website', resolvePlatformUrl()))
+	);
+	const label =
+		(flags.label ? String(flags.label) : '') ||
+		(await ask('Name for this PC', hostname().slice(0, 24) || 'home-gpu'));
+	const vllmUrl = resolveVllmUrl(flags.vllm ?? (await ask('Local AI server', resolveVllmUrl())));
+	const vllmApiKey = flags['vllm-key'] ?? process.env.VLLM_API_KEY ?? (await ask('vLLM API key (blank if none)', ''));
 
-	if (!label) {
-		throw new Error('--label is required.');
+	if (!label) throw new Error('A name for this PC is required.');
+
+	return { platformUrl, label, vllmUrl, vllmApiKey };
+}
+
+async function cmdSetup(flags) {
+	say('');
+	say('NodAI Node setup');
+	say('This PC will run AI jobs. NodAI does not use a cloud GPU.');
+	say('');
+
+	const answers = await collectSetup(flags);
+
+	say(`Checking ${answers.vllmUrl}…`);
+	try {
+		const health = await checkVllm(answers);
+		say(`Local AI server OK — ${health.models.join(', ') || 'model ready'}`);
+	} catch {
+		say('Could not reach the local AI server. Start vLLM first, then try again.');
+		say('Example: vllm serve Qwen/Qwen3.8-27B --host 127.0.0.1 --port 8000');
+		throw new Error('Local AI server is not running.');
 	}
 
-	console.log(`Registering with ${platformUrl}…`);
-	const body = await registerNode(platformUrl, label);
+	say(`Registering with ${answers.platformUrl}…`);
+	const body = await registerNode(answers.platformUrl, answers.label);
 
 	const path = saveConfig({
-		platformUrl,
-		vllmUrl,
-		vllmApiKey: flags['vllm-key'] ?? process.env.VLLM_API_KEY ?? '',
+		platformUrl: answers.platformUrl,
+		vllmUrl: answers.vllmUrl,
+		vllmApiKey: answers.vllmApiKey,
 		nodeId: body.node_id,
 		authToken: body.auth_token,
-		label: body.label ?? label
+		label: body.label ?? answers.label
 	});
 
-	console.log('');
-	console.log('Node registered.');
-	console.log(`  node_id:    ${body.node_id}`);
-	console.log(`  auth_token: ${body.auth_token}`);
-	console.log(`  config:     ${path}`);
-	console.log('');
-	console.log('Start the worker with: nodai-node run');
+	say('');
+	say('This PC is registered.');
+	say(`  name:    ${body.label ?? answers.label}`);
+	say(`  node:    ${body.node_id}`);
+	say(`  saved:   ${path}`);
+	say('');
+	return loadConfig();
+}
+
+async function cmdStart(flags) {
+	const config = existsConfig() && !flags.fresh ? loadConfig() : await cmdSetup(flags);
+	say('Starting. Leave this window open. Press Ctrl+C to stop.');
+	say('');
+	if (flags.once) await runOnce();
+	else await runForever(config);
+}
+
+async function cmdRegister(flags) {
+	if (!flags.label && !process.stdin.isTTY) {
+		throw new Error('Pass --label my-pc  (or run: nodai-node start)');
+	}
+	await cmdSetup(flags);
+	say('Start the worker with: nodai-node start');
 }
 
 async function cmdStatus(flags) {
@@ -84,23 +135,23 @@ async function cmdStatus(flags) {
 
 	try {
 		const config = loadConfig();
-		console.log('Config:     ', configPath());
-		console.log('Node ID:    ', config.nodeId);
-		console.log('Token:      ', maskToken(config.authToken));
-		console.log('Platform:   ', config.platformUrl);
-		console.log('vLLM:       ', config.vllmUrl);
+		say(`Saved file:  ${configPath()}`);
+		say(`PC name:     ${config.label ?? '—'}`);
+		say(`Node ID:     ${config.nodeId}`);
+		say(`Token:       ${maskToken(config.authToken)}`);
+		say(`Website:     ${config.platformUrl}`);
+		say(`Local AI:    ${config.vllmUrl}`);
 
 		const vllm = await checkVllm(config);
-		console.log('vLLM status:  OK');
-		console.log('vLLM models: ', vllm.models.join(', ') || 'none');
+		say(`Local AI:    OK (${vllm.models.join(', ') || 'ready'})`);
 
 		const nodes = await listNodes(config.platformUrl);
 		const self = nodes.nodes?.find((n) => n.id === config.nodeId);
-		console.log('Node status: ', self?.status ?? 'unknown');
+		say(`On website:  ${self?.status ?? 'unknown'}`);
 	} catch (error) {
 		if (error.message.includes('No node config')) {
 			const nodes = await listNodes(platformUrl);
-			console.log(`Platform ${platformUrl}: OK (${nodes.nodes?.length ?? 0} nodes)`);
+			say(`Website ${platformUrl}: OK (${nodes.nodes?.length ?? 0} nodes)`);
 			throw error;
 		}
 		throw error;
@@ -109,13 +160,19 @@ async function cmdStatus(flags) {
 
 function cmdConfig() {
 	const config = loadConfig();
-	console.log(JSON.stringify({ ...config, authToken: maskToken(config.authToken) }, null, 2));
+	say(JSON.stringify({ ...config, authToken: maskToken(config.authToken) }, null, 2));
 }
 
 export async function runCli(argv) {
 	const { command, flags } = parseArgs(argv);
 
 	switch (command) {
+		case 'start':
+			await cmdStart(flags);
+			break;
+		case 'setup':
+			await cmdSetup(flags);
+			break;
 		case 'register':
 			await cmdRegister(flags);
 			break;
@@ -132,10 +189,13 @@ export async function runCli(argv) {
 		case 'help':
 		case '--help':
 		case '-h':
-		case undefined:
 			usage();
 			break;
+		case undefined:
+			if (existsConfig()) await cmdStart(flags);
+			else usage();
+			break;
 		default:
-			throw new Error(`Unknown command: ${command}`);
+			throw new Error(`Unknown command: ${command}. Try: nodai-node start`);
 	}
 }

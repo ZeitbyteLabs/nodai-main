@@ -15,9 +15,9 @@ function log(message) {
  * Main worker loop: heartbeat, pull jobs, run vLLM, submit results.
  */
 export async function runWorker(config, { once = false } = {}) {
-	log(`Node ${config.nodeId.slice(0, 8)}… online`);
-	log(`Platform: ${config.platformUrl}`);
-	log(`vLLM:     ${config.vllmUrl}`);
+	log(`${config.label ?? 'This PC'} is online`);
+	log(`Website: ${config.platformUrl}`);
+	log(`Local AI: ${config.vllmUrl}`);
 
 	const health = await checkVllm(config);
 	log(`vLLM models: ${health.models.join(', ') || 'none'}`);
@@ -62,7 +62,7 @@ export async function runWorker(config, { once = false } = {}) {
 			continue;
 		}
 
-		log(`Job ${job.id.slice(0, 8)}… — "${job.prompt.slice(0, 48)}${job.prompt.length > 48 ? '…' : ''}"`);
+		log(`Got a job — running it on your GPU…`);
 
 		try {
 			const result = await runInference(config, job);
@@ -73,7 +73,7 @@ export async function runWorker(config, { once = false } = {}) {
 				status: 'completed'
 			});
 			log(
-				`Completed in ${result.latencyMs}ms` +
+				`Done. Sent the answer back` +
 					(result.tokensUsed ? ` (${result.tokensUsed} tokens)` : '')
 			);
 		} catch (error) {
@@ -96,7 +96,6 @@ export async function runOnce() {
 	await runWorker(config, { once: true });
 }
 
-export async function runForever() {
-	const config = loadConfig();
+export async function runForever(config = loadConfig()) {
 	await runWorker(config);
 }

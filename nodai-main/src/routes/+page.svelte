@@ -27,9 +27,9 @@
 		{
 			n: '02',
 			title: 'Run AI',
-			body: 'Send a prompt and get a real response from a real model. No queues, no sales call.',
+			body: 'Send a prompt. A community GPU on someone\'s machine answers it. NodAI does not rent cloud GPUs.',
 			detail:
-				'The playground streams tokens from a live GPU. Each run costs a fixed amount of NOD and is written to your activity so the usage is never hidden.'
+				'The playground queues a job. A PC running nodai-node pulls it, runs the model locally, and sends the answer back. Each run costs a fixed amount of NOD.'
 		},
 		{
 			n: '03',
@@ -80,11 +80,11 @@
 		},
 		{
 			q: 'Is the model actually running?',
-			a: 'Yes. Prompts go to a live vLLM server, not a canned demo. If the GPU is waking up, the playground tells you instead of faking a reply.'
+			a: 'Yes — when a community GPU is online. Prompts wait in a queue until someone\'s PC running nodai-node picks them up. There is no NodAI-owned cloud GPU.'
 		},
 		{
 			q: 'Can I attach my own GPU?',
-			a: 'Yes. The nodai-node CLI registers a machine, sends heartbeats, pulls queued jobs, and submits results from local vLLM.'
+			a: 'Yes. Open Host GPU in the nav. Install Node.js, start vLLM on your PC, then run nodai-node start against the live site.'
 		}
 	];
 
@@ -273,8 +273,8 @@
 			<p class="mono-label">Playground</p>
 			<h2 class="mt-4 text-3xl font-semibold md:text-4xl">Send a real prompt.</h2>
 			<p class="mt-4 leading-relaxed text-fg-muted">
-				The landing page will not fake a completion. These are starter prompts — take one into the
-				playground and the GPU answers.
+				These are starter prompts — take one into the playground. A community GPU answers when
+				someone is hosting.
 			</p>
 			<div class="mt-8 flex flex-wrap gap-3">
 				<Button href={startHref}>
@@ -325,7 +325,7 @@
 			</h2>
 			<p class="mt-5 leading-relaxed text-fg-muted">
 				{featured?.description ??
-					'NodAI launches with a single production model served on real hardware. Not a waitlist, not a demo video — sign up and send it a prompt.'}
+					'One catalogue model. Jobs run on community GPUs — not a NodAI cloud box. Sign up, queue a prompt, and a host answers it.'}
 			</p>
 			<div class="mt-8">
 				<Button href={data.signedIn ? '/playground' : '/signup'} variant="secondary">

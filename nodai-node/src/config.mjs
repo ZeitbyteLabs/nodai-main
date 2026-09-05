@@ -5,7 +5,7 @@ const CONFIG_DIR = '.nodai';
 const CONFIG_FILE = 'node.json';
 
 const defaults = {
-	platformUrl: 'http://localhost:5173',
+	platformUrl: 'https://nodai-main.vercel.app',
 	vllmUrl: 'http://127.0.0.1:8000',
 	vllmApiKey: '',
 	pollIntervalMs: 3000,
@@ -14,6 +14,10 @@ const defaults = {
 
 function configPath(cwd = process.cwd()) {
 	return join(cwd, CONFIG_DIR, CONFIG_FILE);
+}
+
+export function existsConfig(cwd = process.cwd()) {
+	return existsSync(configPath(cwd));
 }
 
 /** Loads node config from ./.nodai/node.json */

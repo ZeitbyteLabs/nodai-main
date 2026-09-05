@@ -4,6 +4,7 @@
 	import {
 		Box,
 		Code,
+		Cpu,
 		Info,
 		KeyRound,
 		LayoutDashboard,
@@ -30,6 +31,7 @@
 	const internal = [
 		{ href: '/models', label: 'Models', icon: Box },
 		{ href: '/playground', label: 'Playground', icon: Sparkles },
+		{ href: '/host', label: 'Host GPU', icon: Cpu },
 		{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }
 	];
 

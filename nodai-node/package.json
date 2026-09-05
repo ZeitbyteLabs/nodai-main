@@ -7,7 +7,7 @@
 		"nodai-node": "./bin/nodai-node.mjs"
 	},
 	"scripts": {
-		"start": "node bin/nodai-node.mjs run",
+		"start": "node bin/nodai-node.mjs start",
 		"verify": "node scripts/verify-node-cli.mjs"
 	},
 	"engines": {

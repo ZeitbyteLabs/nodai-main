@@ -8,6 +8,8 @@ Public documentation for NodAI users, developers, and GPU operators.
 | [`API.md`](API.md) | Developers — HTTP API reference |
 | [`NodeGuide.md`](NodeGuide.md) | GPU operators — register hardware and run jobs |
 
-The NodAI app also includes an in-app guide at `/guide`.
+In the app: `/guide` (users) and `/host` (GPU hosts).
+
+Inference runs on community PCs via `nodai-node`. NodAI does not rent cloud GPUs.
 
 Repository: [github.com/ZeitbyteLabs/nodai-main](https://github.com/ZeitbyteLabs/nodai-main)

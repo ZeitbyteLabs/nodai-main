@@ -1,136 +1,67 @@
-# GPU Node Guide
+# Host a GPU on NodAI
 
-How to connect a machine running vLLM to the NodAI network.
+NodAI does not run a cloud GPU. Your PC runs the model. The website only sends jobs.
 
----
-
-## Requirements
-
-- **Node.js 18+**
-- **vLLM** running locally (port 8000)
-- **NodAI app** running with the node API enabled
+Live site: https://nodai-main.vercel.app  
+In-app page: `/host`
 
 ---
 
-## 1. Start vLLM
+## You need
 
-On your GPU machine (RunPod, local desktop, etc.):
+- NVIDIA GPU (8 GB+ VRAM; 24 GB is better for the 27B model)
+- [Node.js 18+](https://nodejs.org)
+- vLLM (or any OpenAI-compatible server) on this machine
+
+---
+
+## 1. Start the model
 
 ```bash
-vllm serve Qwen/Qwen3.8-27B \
-  --host 0.0.0.0 \
-  --port 8000 \
-  --api-key YOUR_VLLM_KEY
+vllm serve Qwen/Qwen3.8-27B --host 127.0.0.1 --port 8000
 ```
 
-Expose port **8000** if you are on a cloud provider. The node CLI talks to vLLM at `http://127.0.0.1:8000` on the same machine.
+Leave this window open. Nothing needs to be public on the internet.
 
 ---
 
-## 2. Install the node CLI
-
-From the repository:
+## 2. Install the node app (once)
 
 ```bash
-cd nodai-node
+git clone https://github.com/ZeitbyteLabs/nodai-main.git
+cd nodai-main/nodai-node
+npm install
 npm link
 ```
 
-Or run directly:
-
-```bash
-node bin/nodai-node.mjs <command>
-```
-
 ---
 
-## 3. Register your node
+## 3. Connect to the live website
 
 ```bash
-nodai-node register \
-  --platform https://your-nodai-app.com \
-  --label my-gpu \
-  --vllm http://127.0.0.1:8000
+nodai-node start --platform https://nodai-main.vercel.app
 ```
 
-Credentials save to `./.nodai/node.json`. **Never commit this file.**
+Press Enter for defaults. Leave the window open.
 
----
+When it says this PC is online, open the playground on your phone or another tab and press Run. This GPU should pick up the job in a few seconds.
 
-## 4. Start the worker
-
-```bash
-nodai-node run
-```
-
-The worker loops forever: heartbeat → pull job → vLLM → submit result.
-
-For background on RunPod:
-
-```bash
-nohup nodai-node run > /workspace/nodai-node.log 2>&1 &
-tail -f /workspace/nodai-node.log
-```
+Stop with **Ctrl+C**.
 
 ---
 
 ## Commands
 
-| Command | Description |
-| -------- | ----------- |
-| `register --platform URL --label NAME` | Register with NodAI, save token |
-| `run` | Start worker loop |
-| `run --once` | Process one job and exit |
-| `status` | Check platform + vLLM connectivity |
-| `config` | Show saved config (token masked) |
+| Command | Meaning |
+| -------- | ------- |
+| `nodai-node start` | Set up + wait for jobs |
+| `nodai-node status` | Check website + local model |
+| `nodai-node setup` | Register only |
 
 ---
 
-## Environment variables
-
-| Variable | Default | Purpose |
-| -------- | ------- | ------- |
-| `NODAI_PLATFORM_URL` | `http://localhost:5173` | NodAI app URL |
-| `VLLM_API_URL` | `http://127.0.0.1:8000` | Local vLLM server |
-| `VLLM_API_KEY` | empty | vLLM bearer token if set |
-
----
-
-## Local dev test
-
-**Terminal 1** — NodAI app:
+## Local website instead of live
 
 ```bash
-cd nodai-main && npm run dev
+nodai-node start --platform http://localhost:5173 --label home-gpu
 ```
-
-**Terminal 2** — vLLM on your GPU.
-
-**Terminal 3** — Node CLI:
-
-```bash
-cd nodai-node
-nodai-node register --platform http://localhost:5173 --label dev-gpu
-nodai-node run
-```
-
-Queue a job via `POST /api/jobs` (signed-in user). See [`API.md`](API.md) for endpoint details.
-
----
-
-## Verify
-
-With the dev server running:
-
-```bash
-cd nodai-node
-npm run verify
-```
-
----
-
-## API reference
-
-Node HTTP endpoints: [`API.md`](API.md#node-endpoints)
-
-Full CLI details: [`../nodai-node/README.md`](../nodai-node/README.md)

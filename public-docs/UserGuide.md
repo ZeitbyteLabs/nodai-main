@@ -31,13 +31,13 @@ This is separate from NOD in your Solana wallet (claimed rewards).
 1. Open **Playground** from the nav.
 2. Write a prompt (up to 8,000 characters).
 3. Adjust **Temperature** and **Max tokens** if needed.
-4. Click **Run** — the response streams in real time.
+4. Click **Run** — the job waits until a community GPU picks it up.
 5. Each completed run earns **0.005 NOD** as a pending reward.
 
 If the run button is disabled:
 
 - Balance too low → get NOD on the dashboard
-- Inference server offline → wait for the GPU node to come online
+- No GPU online → start `nodai-node` on a host PC, or wait for one
 - No models listed → nothing is published yet
 
 ---
@@ -83,4 +83,4 @@ The **Models** page shows what is currently served on the network — name, desc
 
 - In-app guide: `/guide`
 - API reference: [`API.md`](API.md)
-- GPU operators: [`NodeGuide.md`](NodeGuide.md)
+- Host a GPU: [`NodeGuide.md`](NodeGuide.md)

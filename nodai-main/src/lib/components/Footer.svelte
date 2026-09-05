@@ -11,6 +11,7 @@
 		</p>
 		<div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-fg-muted">
 			<a href="/guide" class="hover:text-fg">Guide</a>
+			<a href="/host" class="hover:text-fg">Host GPU</a>
 			<a href="/models" class="hover:text-fg">Models</a>
 			{#if LINKS.github}
 				<a href={LINKS.github} target="_blank" rel="noreferrer" class="hover:text-fg">GitHub</a>
