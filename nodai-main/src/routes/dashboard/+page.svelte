@@ -1,102 +1,109 @@
 <script lang="ts">
+	import { ArrowUpRight, LayoutDashboard, Sparkles } from '@lucide/svelte';
+	import Button from '$lib/components/Button.svelte';
+	import NodPanel from '$lib/components/NodPanel.svelte';
+	import NodesPanel from '$lib/components/NodesPanel.svelte';
 	import Panel from '$lib/components/Panel.svelte';
-	import WalletPanel from '$lib/components/WalletPanel.svelte';
 
 	let { data } = $props();
 
+	function explorerTx(signature: string) {
+		return `https://explorer.solana.com/tx/${signature}?cluster=${data.cluster}`;
+	}
+
 	const displayName = $derived(data.profile?.username ?? data.email.split('@')[0]);
 
-	const joined = $derived(
-		data.profile
-			? new Date(data.profile.created_at).toLocaleDateString('en-GB', {
-					day: 'numeric',
-					month: 'short',
-					year: 'numeric'
-				})
-			: '—'
-	);
-
-	const stats = $derived([
-		{ label: 'NOD balance', value: (data.profile?.nod_balance ?? 0).toFixed(3) },
-		{ label: 'Inference runs', value: String(data.runCount) },
-		{ label: 'Transactions', value: String(data.transactions.length) },
-		{ label: 'Member since', value: joined }
-	]);
+	const typeLabels: Record<string, string> = {
+		consumption: 'Run',
+		reward: 'Reward',
+		fee: 'Fee',
+		grant: 'Top-up'
+	};
 </script>
 
 <svelte:head><title>Dashboard — NodAI</title></svelte:head>
 
-<div class="mx-auto max-w-6xl px-6 py-16 md:py-20">
-	<header class="border-b border-line pb-10">
-		<p class="mono-label">Dashboard</p>
-		<h1 class="mt-4 text-4xl font-semibold md:text-5xl">{displayName}</h1>
-		<p class="mt-3 font-mono text-fg-muted">{data.email}</p>
+<div class="mx-auto max-w-4xl px-6 py-12 md:py-16">
+	<header
+		class="flex flex-col gap-5 border-b border-line pb-8 sm:flex-row sm:items-center
+			sm:justify-between"
+	>
+		<div>
+			<div class="flex items-center gap-2 text-fg-muted">
+				<LayoutDashboard class="size-5" />
+				<p class="mono-label">Dashboard</p>
+			</div>
+			<h1 class="mt-3 text-3xl font-semibold md:text-4xl">{displayName}</h1>
+			<p class="mt-2 text-sm text-fg-muted">
+				{data.runCount} run{data.runCount === 1 ? '' : 's'} · {data.transactions.length} transaction{data.transactions.length === 1 ? '' : 's'}
+			</p>
+		</div>
+		<Button href="/playground" size="lg">
+			<Sparkles class="size-4" />
+			Run inference
+		</Button>
 	</header>
 
-	<!-- Stats strip -->
-	<div class="mt-10 grid grid-cols-2 border-t border-l border-line md:grid-cols-4">
-		{#each stats as stat (stat.label)}
-			<div class="border-r border-b border-line p-6">
-				<p class="mono-label">{stat.label}</p>
-				<p class="mt-3 font-mono text-2xl text-fg md:text-3xl">{stat.value}</p>
-			</div>
-		{/each}
-	</div>
-
 	<div class="mt-8 grid gap-8 lg:grid-cols-2">
-		<WalletPanel address={data.profile?.wallet_address ?? null} />
-
-		<Panel label="Account">
-			<dl class="flex flex-col divide-y divide-line">
-				<div class="flex items-baseline justify-between gap-6 pb-4">
-					<dt class="text-fg-muted">Email</dt>
-					<dd class="font-mono text-right break-all text-fg">{data.email}</dd>
-				</div>
-				<div class="flex items-baseline justify-between gap-6 py-4">
-					<dt class="text-fg-muted">Username</dt>
-					<dd class="font-mono text-fg">{data.profile?.username ?? '—'}</dd>
-				</div>
-				<div class="flex items-baseline justify-between gap-6 py-4">
-					<dt class="text-fg-muted">Account ID</dt>
-					<dd class="font-mono text-sm break-all text-fg-muted">{data.profile?.id ?? '—'}</dd>
-				</div>
-				<div class="flex items-baseline justify-between gap-6 pt-4">
-					<dt class="text-fg-muted">Joined</dt>
-					<dd class="font-mono text-fg">{joined}</dd>
-				</div>
-			</dl>
-		</Panel>
+		<NodPanel address={data.profile?.wallet_address ?? null} />
+		<NodesPanel />
 	</div>
 
 	<div class="mt-8">
-		<Panel label="Recent activity" padded={data.transactions.length === 0}>
+		<Panel label="Activity" padded={data.transactions.length === 0}>
 			{#if data.transactions.length === 0}
-				<p class="py-6 text-center text-fg-subtle">
-					Nothing yet. Activity appears here once you start running inference.
-				</p>
+				<div class="flex flex-col items-center gap-4 py-10 text-center">
+					<p class="text-fg-muted">No activity yet.</p>
+					<p class="max-w-sm text-sm text-fg-subtle">
+						Run inference in the playground — each run is recorded here.
+					</p>
+					<Button href="/playground" variant="secondary" size="sm">
+						<Sparkles class="size-4" />
+						Open playground
+					</Button>
+				</div>
 			{:else}
-				<table class="w-full text-left">
-					<thead>
-						<tr class="border-b border-line">
-							<th class="mono-label px-5 py-3 font-normal">Type</th>
-							<th class="mono-label px-5 py-3 font-normal">Amount</th>
-							<th class="mono-label px-5 py-3 font-normal">Status</th>
-							<th class="mono-label px-5 py-3 font-normal">Date</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each data.transactions as tx (tx.id)}
-							<tr class="border-b border-line last:border-b-0">
-								<td class="px-5 py-4 text-fg">{tx.type}</td>
-								<td class="px-5 py-4 font-mono text-fg">{Number(tx.amount).toFixed(3)} NOD</td>
-								<td class="px-5 py-4 font-mono text-sm text-fg-muted">{tx.status}</td>
-								<td class="px-5 py-4 font-mono text-sm text-fg-muted">
-									{new Date(tx.created_at).toLocaleDateString('en-GB')}
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
+				<ul class="divide-y divide-line">
+					{#each data.transactions as tx (tx.id)}
+						<li
+							class="flex items-center justify-between gap-4 px-1 py-4 transition-colors
+								hover:bg-surface-2"
+						>
+							<div class="min-w-0">
+								<p class="text-fg">{typeLabels[tx.type] ?? tx.type}</p>
+								<p class="mt-1 text-xs text-fg-muted">
+									{new Date(tx.created_at).toLocaleDateString('en-GB', {
+										day: 'numeric',
+										month: 'short',
+										hour: '2-digit',
+										minute: '2-digit'
+									})}
+								</p>
+							</div>
+							<div class="flex shrink-0 items-center gap-3">
+								<span
+									class="font-mono text-sm {tx.type === 'consumption' || tx.type === 'fee'
+										? 'text-fg-muted'
+										: 'text-success'}"
+								>
+									{tx.type === 'consumption' || tx.type === 'fee' ? '−' : '+'}
+									{Number(tx.amount).toFixed(3)} NOD
+								</span>
+								{#if tx.signature}
+									<a
+										href={explorerTx(tx.signature)}
+										target="_blank"
+										rel="noreferrer"
+										class="text-fg-muted transition-colors hover:text-accent-fg"
+										aria-label="View transaction"
+									>
+										<ArrowUpRight class="size-4" />
+									</a>
+								{/if}
+							</div>
+						</li>
+					{/each}
+				</ul>
 			{/if}
 		</Panel>
 	</div>

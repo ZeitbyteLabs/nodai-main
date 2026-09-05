@@ -49,8 +49,7 @@ function store(response) {
 		else jar.set(name, value);
 	}
 }
-const cookieHeader = () =>
-	[...jar].map(([name, value]) => `${name}=${value}`).join('; ');
+const cookieHeader = () => [...jar].map(([name, value]) => `${name}=${value}`).join('; ');
 
 async function visit(path, init = {}) {
 	const response = await fetch(origin + path, {
@@ -96,7 +95,10 @@ try {
 		signin.status === 303 && signin.headers.get('location') === '/dashboard',
 		`${signin.status} -> ${signin.headers.get('location')}`
 	);
-	check('session cookie issued', [...jar.keys()].some((k) => k.includes('auth-token')));
+	check(
+		'session cookie issued',
+		[...jar.keys()].some((k) => k.includes('auth-token'))
+	);
 
 	// Dashboard renders the signed-in user's own data.
 	const dashboard = await visit('/dashboard');
@@ -108,7 +110,11 @@ try {
 
 	// Signed-in users are pushed off the auth pages.
 	const bounce = await visit('/signin');
-	check('signed-in /signin redirects to dashboard', bounce.status === 303, `status ${bounce.status}`);
+	check(
+		'signed-in /signin redirects to dashboard',
+		bounce.status === 303,
+		`status ${bounce.status}`
+	);
 
 	// Link a wallet through the API the browser uses.
 	const link = await visit('/api/wallet', {

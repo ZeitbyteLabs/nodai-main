@@ -18,6 +18,9 @@ Thumbs.db
 !.env.example
 !.env.test
 
+# Solana treasury keypair + mint metadata written by scripts/setup-nod-token.mjs
+.solana
+
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*

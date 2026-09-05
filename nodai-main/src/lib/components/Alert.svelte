@@ -15,6 +15,6 @@
 	};
 </script>
 
-<div class="border px-4 py-3 text-[0.9375rem] {tones[tone]}">
+<div class="animate-rise rounded-xl border px-4 py-3 text-[0.9375rem] {tones[tone]}">
 	{@render children()}
 </div>

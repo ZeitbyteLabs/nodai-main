@@ -1,0 +1,16 @@
+{
+	"name": "nodai-node",
+	"version": "0.1.0",
+	"description": "NodAI GPU node CLI — register, heartbeat, pull jobs, run vLLM, submit results",
+	"type": "module",
+	"bin": {
+		"nodai-node": "./bin/nodai-node.mjs"
+	},
+	"scripts": {
+		"start": "node bin/nodai-node.mjs run",
+		"verify": "node scripts/verify-node-cli.mjs"
+	},
+	"engines": {
+		"node": ">=18"
+	}
+}

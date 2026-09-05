@@ -1,0 +1,3 @@
+# Local node credentials — do not commit
+.nodai/
+node_modules/

@@ -16,7 +16,9 @@
 	} = $props();
 </script>
 
-<section class="border border-line bg-surface {className}">
+<section
+	class="card-interactive overflow-hidden rounded-2xl border border-line bg-surface {className}"
+>
 	{#if label || actions}
 		<header class="flex h-12 items-center justify-between border-b border-line px-5">
 			<span class="mono-label">{label}</span>

@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+import { cluster } from '$lib/server/solana';
 import type { Profile, Transaction } from '$lib/types/database';
 import type { PageServerLoad } from './$types';
 
@@ -31,13 +32,14 @@ export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
 			.select('*')
 			.eq('user_id', user.id)
 			.order('created_at', { ascending: false })
-			.limit(5)
+			.limit(8)
 	]);
 
 	return {
 		profile: (profile ?? null) as Profile | null,
 		email: user.email ?? '',
 		runCount: runCount ?? 0,
-		transactions: (transactions ?? []) as Transaction[]
+		transactions: (transactions ?? []) as Transaction[],
+		cluster: cluster()
 	};
 };

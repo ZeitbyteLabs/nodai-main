@@ -54,7 +54,7 @@
 	{#snippet actions()}
 		{#if wallet.address}
 			<span class="flex items-center gap-2 text-xs text-fg-muted">
-				<span class="size-2 bg-success"></span>
+				<span class="size-2 rounded-full bg-success"></span>
 				Devnet
 			</span>
 		{/if}
@@ -67,8 +67,11 @@
 				<p class="mt-2 font-mono text-lg break-all text-fg">{truncate(wallet.address)}</p>
 			</div>
 
-			<div class="grid grid-cols-2 border border-line divide-x divide-line">
-				<div class="p-4">
+			<div
+				class="grid grid-cols-2 divide-x divide-line overflow-hidden rounded-xl border
+					border-line"
+			>
+				<div class="cell-interactive p-4">
 					<p class="mono-label">SOL balance</p>
 					<p class="mt-2 font-mono text-xl text-fg">
 						{#if balanceUnavailable}
@@ -80,7 +83,7 @@
 						{/if}
 					</p>
 				</div>
-				<div class="p-4">
+				<div class="cell-interactive p-4">
 					<p class="mono-label">Cluster</p>
 					<p class="mt-2 font-mono text-xl text-fg">Devnet</p>
 				</div>
@@ -109,17 +112,13 @@
 			{#if wallet.available.length > 0}
 				<div class="flex flex-wrap gap-3">
 					{#each wallet.available as detected (detected.kind)}
-						<Button
-							size="md"
-							onclick={() => connect(detected.kind)}
-							disabled={wallet.connecting}
-						>
+						<Button size="md" onclick={() => connect(detected.kind)} disabled={wallet.connecting}>
 							{wallet.connecting ? 'Connecting…' : `Connect ${detected.name}`}
 						</Button>
 					{/each}
 				</div>
 			{:else}
-				<div class="border border-line bg-surface-2 p-5">
+				<div class="rounded-xl border border-line bg-surface-2 p-5">
 					<p class="text-[0.9375rem] text-fg-muted">
 						No Solana wallet detected in this browser. Install one, then reload this page.
 					</p>

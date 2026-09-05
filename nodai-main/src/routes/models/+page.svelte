@@ -22,12 +22,18 @@
 			<Alert>The model catalogue is temporarily unavailable. Try again shortly.</Alert>
 		</div>
 	{:else if data.models.length === 0}
-		<p class="mt-16 text-center text-fg-subtle">No models published yet.</p>
+		<div class="mt-16 flex flex-col items-center gap-4 text-center">
+			<p class="text-fg-muted">No models published yet.</p>
+			<p class="max-w-md text-sm text-fg-subtle">
+				Models appear here once they are added to the network catalogue.
+			</p>
+		</div>
 	{:else}
-		<div class="mt-10 flex flex-col gap-px bg-line">
+		<div class="mt-10 flex flex-col gap-4">
 			{#each data.models as model (model.id)}
 				<article
-					class="flex flex-col gap-6 bg-surface p-7 md:flex-row md:items-center md:justify-between"
+					class="flex card-interactive flex-col gap-6 rounded-2xl border border-line bg-surface
+						p-7 md:flex-row md:items-center md:justify-between"
 				>
 					<div class="max-w-2xl">
 						<h2 class="text-2xl font-semibold md:text-3xl">{model.name}</h2>
@@ -36,16 +42,25 @@
 						{/if}
 						<div class="mt-5 flex flex-wrap items-center gap-2">
 							{#if model.license}
-								<span class="border border-line-strong px-2.5 py-1 font-mono text-xs text-fg-muted">
+								<span
+									class="rounded-full border border-line-strong px-2.5 py-1 font-mono text-xs
+										text-fg-muted"
+								>
 									{model.license}
 								</span>
 							{/if}
 							{#if model.vllm_model_name}
-								<span class="border border-line-strong px-2.5 py-1 font-mono text-xs text-fg-muted">
+								<span
+									class="rounded-full border border-line-strong px-2.5 py-1 font-mono text-xs
+										text-fg-muted"
+								>
 									{model.vllm_model_name}
 								</span>
 							{/if}
-							<span class="border border-accent-line bg-accent-wash px-2.5 py-1 font-mono text-xs text-accent-fg">
+							<span
+								class="rounded-full border border-accent-line bg-accent-wash px-2.5 py-1
+									font-mono text-xs text-accent-fg"
+							>
 								Active
 							</span>
 						</div>
@@ -53,7 +68,7 @@
 
 					<div class="shrink-0">
 						{#if data.signedIn}
-							<Button href="/dashboard" variant="secondary">Open dashboard</Button>
+							<Button href="/playground">Run inference</Button>
 						{:else}
 							<Button href="/signup">Get started</Button>
 						{/if}

@@ -18,7 +18,7 @@
 	<h1 class="text-4xl font-semibold md:text-5xl">{title}</h1>
 	<p class="mt-4 leading-relaxed text-fg-muted">{subtitle}</p>
 
-	<div class="mt-10 border border-line bg-surface p-7">
+	<div class="mt-10 card-interactive rounded-2xl border border-line bg-surface p-7">
 		{@render children()}
 	</div>
 

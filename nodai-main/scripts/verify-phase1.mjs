@@ -22,7 +22,11 @@ const SERVICE = env.SUPABASE_SERVICE_ROLE_KEY;
 
 const email = `probe.${Date.now()}@nodai-check.dev`;
 const password = 'ProbePass12345';
-const admin = { apikey: SERVICE, Authorization: `Bearer ${SERVICE}`, 'content-type': 'application/json' };
+const admin = {
+	apikey: SERVICE,
+	Authorization: `Bearer ${SERVICE}`,
+	'content-type': 'application/json'
+};
 
 let failures = 0;
 function check(label, ok, detail = '') {

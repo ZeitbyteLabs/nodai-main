@@ -7,6 +7,7 @@
 		type = 'text',
 		value = $bindable(''),
 		hint = '',
+		hintClass = '',
 		error = '',
 		...rest
 	}: {
@@ -15,6 +16,7 @@
 		type?: string;
 		value?: string;
 		hint?: string;
+		hintClass?: string;
 		error?: string;
 		[key: string]: unknown;
 	} = $props();
@@ -26,13 +28,14 @@
 		{id}
 		{type}
 		bind:value
-		class="h-12 w-full rounded-none border px-3.5 text-[0.9375rem] text-fg outline-none
-			{error ? 'border-danger' : 'border-line'} bg-surface-2 focus:border-accent"
+		class="h-12 w-full rounded-lg border px-3.5 text-[0.9375rem] text-fg outline-none
+			{error ? 'border-danger' : 'border-line'} bg-surface-2 hover:border-line-strong
+			focus:border-accent"
 		{...rest}
 	/>
 	{#if error}
 		<p class="text-sm text-danger">{error}</p>
 	{:else if hint}
-		<p class="text-sm text-fg-subtle">{hint}</p>
+		<p class="text-sm text-fg-subtle {hintClass}">{hint}</p>
 	{/if}
 </div>

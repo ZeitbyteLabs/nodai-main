@@ -5,7 +5,7 @@ import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/publi
 import type { Database } from '$lib/types/database';
 
 /** Routes that require an authenticated session. */
-const PROTECTED_PREFIXES = ['/dashboard', '/playground'];
+const PROTECTED_PREFIXES = ['/dashboard', '/playground', '/account'];
 
 /** Routes an authenticated user should be bounced away from. */
 const AUTH_ONLY_PREFIXES = ['/signin', '/signup'];

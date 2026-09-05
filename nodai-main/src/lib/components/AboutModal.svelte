@@ -1,0 +1,58 @@
+<script lang="ts">
+	import { Dialog } from 'bits-ui';
+	import { NOD, SITE } from '$lib/config';
+	import Button from './Button.svelte';
+
+	let { open = $bindable(false) }: { open?: boolean } = $props();
+</script>
+
+<Dialog.Root bind:open>
+	<Dialog.Portal>
+		<Dialog.Overlay class="fixed inset-0 z-50 bg-ink/80 backdrop-blur-sm" />
+		<Dialog.Content
+			class="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2
+				-translate-y-1/2 rounded-2xl border border-line bg-surface p-6 shadow-xl
+				focus:outline-none md:p-8"
+		>
+			<Dialog.Title class="text-2xl font-semibold text-fg">{SITE.name}</Dialog.Title>
+			<Dialog.Description class="mt-2 text-fg-muted">
+				{SITE.tagline}
+			</Dialog.Description>
+
+			<div class="mt-6 space-y-4 text-[0.9375rem] leading-relaxed text-fg-muted">
+				<p>
+					NodAI is an open network for sharing models, running AI, and earning NOD for the work
+					you contribute. Everything is recorded in a public ledger so the maths is always
+					checkable.
+				</p>
+
+				<ol class="space-y-3">
+					<li class="flex gap-3">
+						<span class="font-mono text-accent-fg">1</span>
+						<span><strong class="text-fg">Share models</strong> — publish open models with a clear licence.</span>
+					</li>
+					<li class="flex gap-3">
+						<span class="font-mono text-accent-fg">2</span>
+						<span><strong class="text-fg">Run AI</strong> — send a prompt in the playground and get a real response.</span>
+					</li>
+					<li class="flex gap-3">
+						<span class="font-mono text-accent-fg">3</span>
+						<span><strong class="text-fg">Earn NOD</strong> — each run costs {NOD.costPerInference} NOD and earns {NOD.rewardPerInference} NOD back.</span>
+					</li>
+				</ol>
+
+				<p>
+					Connect a wallet on your dashboard to claim earned NOD. Your balance pays for runs;
+					rewards accumulate until you claim them.
+				</p>
+			</div>
+
+			<div class="mt-8 flex flex-wrap justify-end gap-3">
+				<Button href="/guide" variant="ghost" size="sm">User guide</Button>
+				<Dialog.Close>
+					<Button variant="secondary" size="sm">Got it</Button>
+				</Dialog.Close>
+			</div>
+		</Dialog.Content>
+	</Dialog.Portal>
+</Dialog.Root>
