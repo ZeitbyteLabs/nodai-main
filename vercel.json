@@ -1,0 +1,6 @@
+{
+	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"framework": "sveltekit",
+	"buildCommand": "cd nodai-main && npm run build",
+	"installCommand": "cd nodai-main && npm install"
+}
