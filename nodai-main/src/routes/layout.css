@@ -1,0 +1,121 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@theme {
+	/* Surfaces — flat black, no gradients anywhere */
+	--color-ink: #000000;
+	--color-surface: #07070a;
+	--color-surface-2: #0d0d11;
+	--color-surface-3: #14141a;
+
+	/* Hairline borders carry all the structure */
+	--color-line: #1b1b22;
+	--color-line-strong: #2c2c36;
+
+	/* Type */
+	--color-fg: #f5f5f7;
+	--color-fg-muted: #8b8b98;
+	--color-fg-subtle: #5a5a66;
+
+	/* Dark purple accent */
+	--color-accent: #6d28d9;
+	--color-accent-hover: #7c3aed;
+	--color-accent-press: #5b21b6;
+	--color-accent-line: #3b1e78;
+	--color-accent-wash: #130b26;
+	--color-accent-fg: #c4b5fd;
+
+	--color-danger: #e5484d;
+	--color-danger-wash: #24090b;
+	--color-success: #46a758;
+
+	--font-sans:
+		'Geist', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+	/* Blocky: everything is square */
+	--radius-none: 0px;
+}
+
+@layer base {
+	html {
+		/* Larger base type throughout */
+		font-size: 17px;
+		background-color: var(--color-ink);
+		color-scheme: dark;
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+	}
+
+	body {
+		background-color: var(--color-ink);
+		color: var(--color-fg);
+		font-family: var(--font-sans);
+	}
+
+	h1,
+	h2,
+	h3,
+	h4 {
+		font-weight: 600;
+		letter-spacing: -0.03em;
+		text-wrap: balance;
+	}
+
+	::selection {
+		background-color: var(--color-accent);
+		color: #ffffff;
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--color-accent-hover);
+		outline-offset: 2px;
+	}
+
+	/* Square, flat form controls — overrides @tailwindcss/forms defaults */
+	input,
+	textarea,
+	select {
+		border-radius: 0;
+		background-color: var(--color-surface-2);
+		border: 1px solid var(--color-line);
+		color: var(--color-fg);
+	}
+
+	input::placeholder,
+	textarea::placeholder {
+		color: var(--color-fg-subtle);
+	}
+
+	input:focus,
+	textarea:focus,
+	select:focus {
+		--tw-ring-color: transparent;
+		border-color: var(--color-accent);
+		box-shadow: none;
+		outline: none;
+	}
+
+	::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+	::-webkit-scrollbar-track {
+		background: var(--color-ink);
+	}
+	::-webkit-scrollbar-thumb {
+		background: var(--color-line-strong);
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background: var(--color-accent);
+	}
+}
+
+@utility mono-label {
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--color-fg-subtle);
+}

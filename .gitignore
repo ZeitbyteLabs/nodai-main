@@ -1,0 +1,19 @@
+node_modules/
+
+# Env — never commit real credentials
+.env
+.env.*
+!.env.example
+
+# Build output
+.svelte-kit/
+build/
+.output/
+.vercel/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
