@@ -18,13 +18,15 @@ npm install
 npm link
 ```
 
-**3. Connect to the live website:**
+**3. Create an API key** on the host account dashboard (**Your GPUs → New key**).
+
+**4. Connect to the live website:**
 
 ```bash
 nodai-node start --platform https://nodai-main.vercel.app
 ```
 
-Answer the questions (or press Enter for defaults). Leave that window open.
+Paste the `nod_…` API key when asked. Leave that window open. Earnings show on that dashboard.
 
 Then open [the playground](https://nodai-main.vercel.app/playground) and run a prompt. This PC should pick it up.
 

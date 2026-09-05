@@ -37,13 +37,13 @@
 					</li>
 					<li class="flex gap-3">
 						<span class="font-mono text-accent-fg">3</span>
-						<span><strong class="text-fg">Earn NOD</strong> — each run costs {NOD.costPerInference} NOD and earns {NOD.rewardPerInference} NOD back.</span>
+						<span><strong class="text-fg">Earn NOD</strong> — hosts earn {NOD.hostRewardPerJob} NOD per job their GPU completes. Users pay {NOD.costPerInference} NOD to run.</span>
 					</li>
 				</ol>
 
 				<p>
-					Connect a wallet on your dashboard to claim earned NOD. Your balance pays for runs;
-					rewards accumulate until you claim them.
+					Your dashboard balance pays for runs. GPU hosts connect a wallet and claim earnings
+					on Solana.
 				</p>
 			</div>
 

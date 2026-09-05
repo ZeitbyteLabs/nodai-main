@@ -5,11 +5,12 @@
  *
  * Requires:
  *   - nodai-main/.env configured
- *   - 0004_nodes.sql applied in Supabase
+ *   - 0004_nodes.sql and 0005_host_earnings.sql applied in Supabase
  *   - dev server running (default http://localhost:5173)
  *
  * Usage: node scripts/verify-phase4.mjs [origin]
  */
+import { createHash, randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
 const origin = process.argv[2] ?? 'http://localhost:5173';
@@ -46,12 +47,53 @@ let nodeId = null;
 let authToken = null;
 let jobId = null;
 let userId = null;
+let hostId = null;
+let keyId = null;
+
+function issueApiKey() {
+	const secret = randomBytes(32).toString('hex');
+	const key = `nod_${secret}`;
+	return {
+		key,
+		hash: createHash('sha256').update(key).digest('hex'),
+		prefix: key.slice(0, 12)
+	};
+}
 
 try {
+	const hostEmail = `host.${Date.now()}@nodai-check.dev`;
+	const host = await fetch(`${BASE}/auth/v1/admin/users`, {
+		method: 'POST',
+		headers: admin,
+		body: JSON.stringify({ email: hostEmail, password: 'NodePass12345', email_confirm: true })
+	}).then((r) => r.json());
+	hostId = host.id;
+	check('seed host user', !!hostId);
+
+	await fetch(`${BASE}/rest/v1/profiles`, {
+		method: 'POST',
+		headers: { ...admin, Prefer: 'resolution=merge-duplicates' },
+		body: JSON.stringify({ id: hostId, email: hostEmail })
+	});
+
+	const issued = issueApiKey();
+	const insertedKey = await fetch(`${BASE}/rest/v1/api_keys`, {
+		method: 'POST',
+		headers: { ...admin, Prefer: 'return=representation' },
+		body: JSON.stringify({
+			user_id: hostId,
+			name: 'verify',
+			key_hash: issued.hash,
+			key_prefix: issued.prefix
+		})
+	}).then((r) => r.json());
+	keyId = insertedKey[0]?.id ?? insertedKey.id;
+	check('seed host API key', !!keyId);
+
 	// --- 4.1 Register -------------------------------------------------------
 	const register = await fetch(`${origin}/api/nodes/register`, {
 		method: 'POST',
-		headers: { 'content-type': 'application/json' },
+		headers: { 'content-type': 'application/json', 'x-nodai-key': issued.key },
 		body: JSON.stringify({ label: 'verify-phase4' })
 	});
 	const regBody = await register.json();
@@ -144,6 +186,19 @@ try {
 		JSON.stringify(stored[0])
 	);
 	check('job linked to node', stored[0]?.node_id === nodeId);
+	check('complete pays host', doneBody.host_reward === 0.005);
+
+	const hostRewards = await fetch(
+		`${BASE}/rest/v1/transactions?user_id=eq.${hostId}&type=eq.reward&job_id=eq.${jobId}&select=amount`,
+		{ headers: admin }
+	).then((r) => r.json());
+	check('host reward row', Number(hostRewards[0]?.amount) === 0.005);
+
+	const userRewards = await fetch(
+		`${BASE}/rest/v1/transactions?user_id=eq.${userId}&type=eq.reward&job_id=eq.${jobId}&select=id`,
+		{ headers: admin }
+	).then((r) => r.json());
+	check('job user did not earn', (userRewards ?? []).length === 0);
 
 	// --- Public node list ---------------------------------------------------
 	const list = await fetch(`${origin}/api/nodes`);
@@ -163,10 +218,16 @@ try {
 	if (nodeId) {
 		await fetch(`${BASE}/rest/v1/nodes?id=eq.${nodeId}`, { method: 'DELETE', headers: admin });
 	}
+	if (keyId) {
+		await fetch(`${BASE}/rest/v1/api_keys?id=eq.${keyId}`, { method: 'DELETE', headers: admin });
+	}
 	if (userId) {
 		await fetch(`${BASE}/auth/v1/admin/users/${userId}`, { method: 'DELETE', headers: admin });
 	}
-	console.log('      cleaned up probe node, job, and user');
+	if (hostId) {
+		await fetch(`${BASE}/auth/v1/admin/users/${hostId}`, { method: 'DELETE', headers: admin });
+	}
+	console.log('      cleaned up probe node, job, keys, and users');
 }
 
 console.log(failures === 0 ? '\nPhase 4 API passed.' : `\n${failures} Phase 4 check(s) failed.`);

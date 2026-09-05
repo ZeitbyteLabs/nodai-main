@@ -10,7 +10,7 @@ export const GET: RequestHandler = async () => {
 
 	const { data: nodes } = await admin
 		.from('nodes')
-		.select('id, label, status, last_heartbeat, created_at')
+		.select('id, label, status, served_model, last_heartbeat, created_at')
 		.order('created_at', { ascending: false });
 
 	return json({ nodes: nodes ?? [] });

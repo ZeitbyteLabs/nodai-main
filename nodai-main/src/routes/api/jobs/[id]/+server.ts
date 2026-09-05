@@ -29,7 +29,7 @@ export const GET: RequestHandler = async ({ params, locals: { user } }) => {
 		response: job.response,
 		tokens_used: job.tokens_used,
 		latency_ms: job.latency_ms,
-		reward: job.status === 'completed' ? NOD.rewardPerInference : 0,
+		cost: NOD.costPerInference,
 		balance: Number(profile?.nod_balance ?? 0),
 		created_at: job.created_at,
 		completed_at: job.completed_at

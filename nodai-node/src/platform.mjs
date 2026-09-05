@@ -16,20 +16,35 @@ async function parseJson(response) {
 	return body;
 }
 
-export async function registerNode(platformUrl, label) {
+export async function registerNode(platformUrl, label, apiKey, servedModel) {
 	const response = await fetch(`${platformUrl}/api/nodes/register`, {
 		method: 'POST',
-		headers: { 'content-type': 'application/json' },
-		body: JSON.stringify({ label })
+		headers: {
+			'content-type': 'application/json',
+			'x-nodai-key': apiKey
+		},
+		body: JSON.stringify({ label, served_model: servedModel || undefined })
 	});
 	return parseJson(response);
 }
 
-export async function sendHeartbeat(config) {
+export async function linkNode(config) {
+	const response = await fetch(`${config.platformUrl}/api/nodes/link`, {
+		method: 'POST',
+		headers: authHeaders(config.authToken),
+		body: JSON.stringify({ api_key: config.apiKey })
+	});
+	return parseJson(response);
+}
+
+export async function sendHeartbeat(config, servedModel) {
 	const response = await fetch(`${config.platformUrl}/api/nodes/heartbeat`, {
 		method: 'POST',
 		headers: authHeaders(config.authToken),
-		body: JSON.stringify({ status: 'online' })
+		body: JSON.stringify({
+			status: 'online',
+			served_model: servedModel || undefined
+		})
 	});
 	return parseJson(response);
 }

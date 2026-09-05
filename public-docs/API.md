@@ -12,7 +12,7 @@ Base URL: your app origin (e.g. `http://localhost:5173`).
 
 Poll a job you queued. Requires sign-in.
 
-**Response:** `{ job_id, status, response, tokens_used, latency_ms, reward, balance }`
+**Response:** `{ job_id, status, response, tokens_used, latency_ms, cost, balance }`
 
 Status: `queued` → `running` → `completed` or `failed`.
 
@@ -49,7 +49,27 @@ Queue an inference job for GPU nodes. Requires sign-in. Debits NOD balance.
 
 ### `GET /api/nod/balance`
 
-Returns NOD credit, pending rewards, wallet link status, and on-chain balance.
+Returns NOD credit, pending **host** rewards, wallet link status, and on-chain balance.
+
+---
+
+### `GET /api/keys`
+
+List your host API keys (prefixes only). Requires sign-in.
+
+### `POST /api/keys`
+
+Create a host API key. The full `nod_…` secret is returned **once**.
+
+**Body:** `{ "name": "GPU host" }`
+
+### `DELETE /api/keys/:id`
+
+Revoke a key. Existing nodes stay online.
+
+### `GET /api/nodes/mine`
+
+Your GPU nodes, served model, jobs completed, and earnings. Requires sign-in.
 
 ---
 
@@ -101,11 +121,21 @@ Node routes use `Authorization: Bearer <auth_token>` from registration.
 
 ### `POST /api/nodes/register`
 
-Register a new GPU node. Public.
+Register a GPU node owned by the account that issued the API key.
 
-**Body:** `{ "label": "my-gpu" }`
+**Header:** `x-nodai-key: nod_…` (from the dashboard)
 
-**Response:** `{ "node_id", "auth_token", "label" }`
+**Body:** `{ "label": "my-gpu", "served_model": "Qwen/Qwen2.5-7B-Instruct" }`
+
+**Response:** `{ "node_id", "auth_token", "label", "owner_id" }`
+
+### `POST /api/nodes/link`
+
+Attach an already-registered node to a dashboard account.
+
+**Header:** `Authorization: Bearer <node auth_token>`
+
+**Body:** `{ "api_key": "nod_…" }`
 
 ---
 
@@ -166,7 +196,7 @@ See `[../nodai-node/README.md](../nodai-node/README.md)` for the `nodai-node` wo
 | Action        | NOD    |
 | ------------- | ------ |
 | Run inference | −0.01  |
-| User reward   | +0.005 |
+| Host reward   | +0.005 |
 | Platform fee  | +0.005 |
 | Faucet top-up | +1.00  |
 

@@ -159,7 +159,17 @@ npm link
 
 ---
 
-## Part 5 — Connect to the live website
+## Part 5 — Create an API key (required to earn)
+
+1. Sign in on the account that should **earn** NOD (your host account).
+2. Dashboard → **Your GPUs** → **New key**.
+3. Copy the `nod_…` secret. It is shown once.
+
+Use a **second account** to run playground prompts if you are testing both sides.
+
+---
+
+## Part 6 — Connect to the live website
 
 With vLLM still running in Terminal A:
 
@@ -175,14 +185,17 @@ Answer the prompts (or press Enter for defaults):
 | Name for this PC | `home-pc` or your choice |
 | Local AI server | `http://127.0.0.1:8000` |
 | vLLM API key | leave blank (unless you set one) |
+| NodAI API key | paste `nod_…` from the dashboard |
 
-When it says **this PC is online**, open the playground on another device:
+When it says **this PC is online**, it appears under **Your GPUs** on the host dashboard.
 
-1. Sign in at https://nodai-main.vercel.app  
-2. Dashboard → **Get NOD**  
-3. **Playground** → type a prompt → **Run**  
-4. Terminal B should show `Got a job` → `Done`  
-5. The answer appears in the playground  
+To test earnings with two accounts:
+
+1. On the **user** account: Dashboard → **Get NOD** → Playground → **Run**
+2. Terminal B should show `Got a job` → `Done` · host earned 0.005 NOD
+3. On the **host** account: Dashboard shows the job, **To claim** increases, Claim pays the wallet
+
+Already registered without a key? Run `nodai-node start` again and paste the API key when asked (or `--api-key nod_…`). That links this PC to your account.
 
 Stop hosting: **Ctrl+C** in the `nodai-node` window. Stop vLLM with **Ctrl+C** in Terminal A.
 
@@ -207,6 +220,8 @@ Stop hosting: **Ctrl+C** in the `nodai-node` window. Stop vLLM with **Ctrl+C** i
 | vLLM install fails | Use Linux/WSL2; Python 3.10–3.12; `pip install vllm` in a fresh venv |
 | Model download slow / fails | Check disk space; run `huggingface-cli login` |
 | `nodai-node` says local AI server not running | Start vLLM first; check `curl http://127.0.0.1:8000/v1/models` |
+| API key required / invalid | Create a key on Dashboard → Your GPUs. It starts with `nod_` |
+| Node online but no earnings | Link the node: `nodai-node start --api-key nod_…` on the host account |
 | Playground stuck on “Queued” | Keep `nodai-node start` running; check dashboard Network shows your node **online** |
 | Job fails | Check Terminal B for errors; vLLM may have crashed |
 

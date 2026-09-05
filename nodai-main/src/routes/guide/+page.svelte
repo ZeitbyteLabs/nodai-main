@@ -8,7 +8,7 @@
 	<title>User guide — NodAI</title>
 	<meta
 		name="description"
-		content="How to sign up, run inference, earn NOD, and connect a wallet on NodAI."
+		content="How to sign up, run inference, host a GPU, and claim NOD on NodAI."
 	/>
 </svelte:head>
 
@@ -17,7 +17,8 @@
 		<p class="mono-label">Guide</p>
 		<h1 class="mt-4 text-4xl font-semibold md:text-5xl">Using NodAI</h1>
 		<p class="mt-4 leading-relaxed text-fg-muted">
-			Everything you need to go from a new account to your first inference run and NOD reward.
+			Everything you need to go from a new account to your first inference run — or to host a
+			GPU and earn NOD.
 		</p>
 	</header>
 
@@ -48,9 +49,9 @@
 					nodai-node picks it up. If none are online, it stays queued.
 				</p>
 				<p>
-					Each completed run earns
-					<span class="font-mono text-fg">{NOD.rewardPerInference} NOD</span> as a pending reward on
-					your dashboard.
+					Running a prompt spends credit. It does not earn NOD. GPU hosts earn
+					<span class="font-mono text-fg">{NOD.hostRewardPerJob} NOD</span> when their machine
+					completes the job.
 				</p>
 				<Button href="/playground" size="sm" variant="secondary">Open playground</Button>
 			</div>
@@ -59,7 +60,7 @@
 		<Panel label="4 · Connect a wallet and claim">
 			<p class="text-[0.9375rem] leading-relaxed text-fg-muted">
 				Install Phantom (or another supported wallet), connect it on the dashboard, then press
-				<strong class="text-fg">Claim NOD</strong> to move earned rewards to your wallet on Solana
+				<strong class="text-fg">Claim NOD</strong> to move host earnings to your wallet on Solana
 				devnet. Devnet NOD is for testing only and has no monetary value.
 			</p>
 		</Panel>
@@ -78,8 +79,9 @@
 		<Panel label="6 · Host a GPU">
 			<div class="flex flex-col gap-4 text-[0.9375rem] leading-relaxed text-fg-muted">
 				<p>
-					NodAI does not run a cloud GPU. If you have an NVIDIA card at home, follow the Host GPU
-					page: start vLLM locally, then <span class="font-mono text-fg">nodai-node start</span>.
+					NodAI does not run a cloud GPU. Sign in, create an API key on the dashboard, start
+					vLLM, then <span class="font-mono text-fg">nodai-node start</span> and paste the key.
+					Your nodes and earnings appear on that same dashboard.
 				</p>
 				<Button href="/host" size="sm" variant="secondary">Host a GPU</Button>
 			</div>

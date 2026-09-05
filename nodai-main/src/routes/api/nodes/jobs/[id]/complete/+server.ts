@@ -49,16 +49,20 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		return json({ job_id: params.id, status: 'failed', refunded: true });
 	}
 
-	await admin.rpc('record_run_rewards', {
-		p_user_id: userId,
-		p_job_id: params.id,
-		p_reward: NOD.rewardPerInference,
-		p_fee: NOD.feePerInference
-	});
+	let hostReward = 0;
+	if (node.owner_id) {
+		await admin.rpc('record_run_rewards', {
+			p_user_id: node.owner_id,
+			p_job_id: params.id,
+			p_reward: NOD.hostRewardPerJob,
+			p_fee: 0
+		});
+		hostReward = NOD.hostRewardPerJob;
+	}
 
 	return json({
 		job_id: params.id,
 		status: 'completed',
-		reward: NOD.rewardPerInference
+		host_reward: hostReward
 	});
 };

@@ -55,6 +55,17 @@ export type Transaction = {
 	created_at: string;
 };
 
+export type ApiKey = {
+	id: string;
+	user_id: string;
+	name: string;
+	key_hash: string;
+	key_prefix: string;
+	last_used_at: string | null;
+	revoked_at: string | null;
+	created_at: string;
+};
+
 export type NodeRecord = {
 	id: string;
 	auth_token: string;
@@ -62,6 +73,9 @@ export type NodeRecord = {
 	status: NodeStatus;
 	last_heartbeat: string | null;
 	created_at: string;
+	owner_id: string | null;
+	api_key_id: string | null;
+	served_model: string | null;
 };
 
 /** Shape required by postgrest-js: Row/Insert/Update/Relationships per table. */
@@ -80,6 +94,7 @@ export type Database = {
 			inference_jobs: Table<InferenceJob, 'user_id' | 'prompt'>;
 			transactions: Table<Transaction, 'user_id' | 'type' | 'amount'>;
 			nodes: Table<NodeRecord, 'auth_token'>;
+			api_keys: Table<ApiKey, 'user_id' | 'key_hash' | 'key_prefix'>;
 		};
 		Views: Record<string, never>;
 		Functions: {

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { NOD } from '$lib/config';
 	import Button from '$lib/components/Button.svelte';
 	import Panel from '$lib/components/Panel.svelte';
 
@@ -18,8 +19,9 @@
 		<p class="mono-label">Host</p>
 		<h1 class="mt-4 text-4xl font-semibold md:text-5xl">Connect your GPU</h1>
 		<p class="mt-4 leading-relaxed text-fg-muted">
-			Your PC runs the AI model with vLLM. NodAI only sends jobs. You need two terminals: one for
-			the model, one for the node app.
+			Your PC runs the AI model with vLLM. NodAI only sends jobs. You earn
+			<span class="font-mono text-fg">{NOD.hostRewardPerJob} NOD</span> per completed job on the
+			account that owns your API key.
 		</p>
 	</header>
 
@@ -58,7 +60,20 @@
 			</ul>
 		</Panel>
 
-		<Panel label="Step 1 · Install vLLM">
+		<Panel label="Step 1 · Create an API key">
+			<p class="text-[0.9375rem] leading-relaxed text-fg-muted">
+				Sign in on the account that should earn NOD. On the dashboard, under
+				<strong class="text-fg">Your GPUs</strong>, click <strong class="text-fg">New key</strong>
+				and copy the <span class="font-mono text-fg">nod_…</span> secret. You will paste it into
+				the node app. Use a <strong class="text-fg">different</strong> account than the one that
+				runs prompts if you are testing both sides.
+			</p>
+			<div class="mt-4">
+				<Button href="/dashboard" size="sm" variant="secondary">Open dashboard</Button>
+			</div>
+		</Panel>
+
+		<Panel label="Step 2 · Install vLLM">
 			<p class="text-[0.9375rem] leading-relaxed text-fg-muted">
 				vLLM is the program that loads a model and answers prompts. Install it once in a Python
 				environment:
@@ -82,7 +97,7 @@ pip install vllm</pre>
 			</p>
 		</Panel>
 
-		<Panel label="Step 2 · Download and serve a model">
+		<Panel label="Step 3 · Download and serve a model">
 			<p class="text-[0.9375rem] leading-relaxed text-fg-muted">
 				The first time you run <span class="font-mono text-fg">vllm serve</span>, it downloads weights
 				from Hugging Face into <span class="font-mono">~/.cache/huggingface/</span>. Leave this
@@ -107,7 +122,7 @@ pip install vllm</pre>
 			</p>
 		</Panel>
 
-		<Panel label="Step 3 · Test vLLM">
+		<Panel label="Step 4 · Test vLLM">
 			<p class="text-[0.9375rem] leading-relaxed text-fg-muted">
 				In a new terminal on the same PC:
 			</p>
@@ -118,7 +133,7 @@ pip install vllm</pre>
 			</p>
 		</Panel>
 
-		<Panel label="Step 4 · Install nodai-node">
+		<Panel label="Step 5 · Install nodai-node">
 			<pre
 				class="overflow-x-auto rounded-xl border border-line bg-surface-2 p-4 font-mono text-sm text-fg">git clone https://github.com/ZeitbyteLabs/nodai-main.git
 cd nodai-main/nodai-node
@@ -126,16 +141,16 @@ npm install
 npm link</pre>
 		</Panel>
 
-		<Panel label="Step 5 · Connect to NodAI">
+		<Panel label="Step 6 · Connect to NodAI">
 			<p class="text-[0.9375rem] leading-relaxed text-fg-muted">
-				With vLLM still running in Step 2, start the node in another terminal:
+				With vLLM still running, start the node and paste your API key when asked:
 			</p>
 			<pre
 				class="mt-4 overflow-x-auto rounded-xl border border-line bg-surface-2 p-4 font-mono text-sm text-fg">nodai-node start --platform {liveUrl}</pre>
 			<p class="mt-4 text-[0.9375rem] leading-relaxed text-fg-muted">
-				Press Enter for defaults. Local AI server =
-				<span class="font-mono">http://127.0.0.1:8000</span>. When this PC is online, open the
-				playground, run a prompt, and watch this window pick up the job.
+				Local AI server = <span class="font-mono">http://127.0.0.1:8000</span>. When this PC is
+				online it shows on <strong class="text-fg">Your GPUs</strong>. Run a prompt from another
+				account and watch this window pick up the job — the host account earns NOD.
 			</p>
 		</Panel>
 
@@ -148,7 +163,7 @@ npm link</pre>
 				</li>
 				<li>
 					<strong class="text-fg">Stuck on Queued</strong> — keep nodai-node running; check
-					Dashboard → Network shows your node online.
+					Dashboard → Your GPUs shows your node online.
 				</li>
 				<li>
 					<strong class="text-fg">Full guide</strong> —

@@ -1,6 +1,6 @@
 # NodAI User Guide
 
-How to use NodAI from sign-up through your first NOD reward.
+How to use NodAI from sign-up through your first inference run. GPU hosts earn NOD — running a prompt does not.
 
 ---
 
@@ -32,7 +32,7 @@ This is separate from NOD in your Solana wallet (claimed rewards).
 2. Write a prompt (up to 8,000 characters).
 3. Adjust **Temperature** and **Max tokens** if needed.
 4. Click **Run** — the job waits until a community GPU picks it up.
-5. Each completed run earns **0.005 NOD** as a pending reward.
+5. Each run costs **0.01 NOD**. You do not earn NOD by running prompts — hosts earn when their GPU finishes the job.
 
 If the run button is disabled:
 
@@ -44,7 +44,7 @@ If the run button is disabled:
 
 ## 4. Connect a wallet
 
-To claim earned NOD on-chain:
+To claim NOD you earned by **hosting** a GPU:
 
 1. Install [Phantom](https://phantom.app/) (or another supported wallet).
 2. On the **Dashboard**, click **Connect Phantom**.
@@ -56,7 +56,7 @@ Your wallet address appears in the NOD panel.
 
 ## 5. Claim NOD
 
-1. Run inference at least once so you have pending rewards.
+1. Complete at least one job as a GPU host (API key + `nodai-node start`).
 2. On the **Dashboard**, check **To claim** in the NOD panel.
 3. Click **Claim NOD**.
 4. Confirm the transaction in your wallet.

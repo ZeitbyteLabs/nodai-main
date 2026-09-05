@@ -21,7 +21,7 @@
 	let balance = $state(untrack(() => data.balance));
 	let tokensUsed = $state<number | null>(null);
 	let latencyMs = $state<number | null>(null);
-	let earned = $state<number | null>(null);
+	let cost = $state<number | null>(null);
 
 	let cancelled = false;
 
@@ -37,7 +37,7 @@
 	const metrics = $derived([
 		{ label: 'Tokens', value: tokensUsed === null ? '—' : String(tokensUsed) },
 		{ label: 'Latency', value: latencyMs === null ? '—' : `${latencyMs} ms` },
-		{ label: 'Earned', value: earned === null ? '—' : `${earned.toFixed(3)} NOD` },
+		{ label: 'Cost', value: cost === null ? '—' : `${cost.toFixed(3)} NOD` },
 		{ label: 'Balance', value: balance.toFixed(3) }
 	]);
 
@@ -74,7 +74,7 @@
 				output = typeof body.response === 'string' ? body.response : '';
 				tokensUsed = typeof body.tokens_used === 'number' ? body.tokens_used : null;
 				latencyMs = typeof body.latency_ms === 'number' ? body.latency_ms : null;
-				earned = typeof body.reward === 'number' ? body.reward : NOD.rewardPerInference;
+				cost = typeof body.cost === 'number' ? body.cost : NOD.costPerInference;
 				phase = 'done';
 				return;
 			}
@@ -99,7 +99,7 @@
 		errorMessage = '';
 		tokensUsed = null;
 		latencyMs = null;
-		earned = null;
+		cost = null;
 		phase = 'queued';
 		progress.start();
 
@@ -152,7 +152,7 @@
 		<h1 class="mt-4 text-4xl font-semibold md:text-5xl">Run inference</h1>
 		<p class="mt-4 max-w-2xl leading-relaxed text-fg-muted">
 			Jobs go to community GPUs — NodAI does not run a cloud GPU. Each run costs
-			{NOD.costPerInference} NOD and earns {NOD.rewardPerInference} NOD back.
+			{NOD.costPerInference} NOD. Hosts earn {NOD.hostRewardPerJob} NOD for completing it.
 		</p>
 	</header>
 
@@ -207,18 +207,6 @@
 
 						{#if errorMessage}
 							<Alert>{errorMessage}</Alert>
-						{/if}
-
-						{#if earned !== null && earned > 0}
-							<Alert tone="info">
-								Earned {earned.toFixed(3)} NOD. Claim it on the
-								<a
-									href="/dashboard"
-									class="underline underline-offset-4 transition-colors hover:text-fg"
-								>
-									dashboard
-								</a>.
-							</Alert>
 						{/if}
 
 						{#if balance < NOD.costPerInference}

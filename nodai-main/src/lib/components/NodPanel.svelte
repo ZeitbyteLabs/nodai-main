@@ -151,12 +151,13 @@
 						{(nod?.pendingReward ?? 0).toFixed(3)}
 					{/if}
 				</p>
-				<p class="mt-1 text-xs text-fg-subtle">from runs</p>
+				<p class="mt-1 text-xs text-fg-subtle">from hosting</p>
 			</div>
 		</div>
 
 		<p class="text-[0.9375rem] leading-relaxed text-fg-muted">
-			Each run costs {NOD.costPerInference} NOD and earns {NOD.rewardPerInference} NOD.
+			Runs cost {NOD.costPerInference} NOD. GPU hosts earn {NOD.hostRewardPerJob} NOD per
+			completed job.
 		</p>
 
 		{#if wallet.address}
@@ -201,7 +202,7 @@
 		{#if !loading && !nod?.configured}
 			<Alert tone="info">NOD rewards are not available yet.</Alert>
 		{:else if !loading && !wallet.address}
-			<Alert tone="info">Connect a wallet to claim your earned NOD.</Alert>
+			<Alert tone="info">Connect a wallet to claim NOD you earned by hosting.</Alert>
 		{/if}
 
 		{#if wallet.error}

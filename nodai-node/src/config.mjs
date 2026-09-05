@@ -8,6 +8,7 @@ const defaults = {
 	platformUrl: 'https://nodai-main.vercel.app',
 	vllmUrl: 'http://127.0.0.1:8000',
 	vllmApiKey: '',
+	apiKey: '',
 	pollIntervalMs: 3000,
 	heartbeatIntervalMs: 30000
 };
@@ -53,6 +54,7 @@ export function normalizeConfig(raw) {
 		platformUrl,
 		vllmUrl,
 		vllmApiKey: String(raw.vllmApiKey ?? defaults.vllmApiKey).trim(),
+		apiKey: String(raw.apiKey ?? defaults.apiKey).trim(),
 		nodeId: String(raw.nodeId ?? '').trim(),
 		authToken: String(raw.authToken ?? '').trim(),
 		label: raw.label ? String(raw.label).trim() : null,

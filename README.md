@@ -27,13 +27,16 @@ npm run dev
 
 Inference needs a host PC, not env vars on the website.
 
+After pulling host-earnings changes, run `nodai-main/supabase/migrations/0005_host_earnings.sql` in the Supabase SQL Editor.
+
 ## Connect a home GPU to the live site
 
 On the GPU computer:
 
-1. Start vLLM on port 8000
-2. `cd nodai-node && npm install && npm link`
-3. `nodai-node start --platform https://nodai-main.vercel.app`
+1. Sign in, create an API key on the dashboard
+2. Start vLLM on port 8000
+3. `cd nodai-node && npm install && npm link`
+4. `nodai-node start --platform https://nodai-main.vercel.app` (paste the API key)
 
 Full steps (vLLM install + model download): [public-docs/NodeGuide.md](public-docs/NodeGuide.md) or `/host` on the site.
 

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ArrowUpRight, LayoutDashboard, Sparkles } from '@lucide/svelte';
 	import Button from '$lib/components/Button.svelte';
+	import HostPanel from '$lib/components/HostPanel.svelte';
 	import NodPanel from '$lib/components/NodPanel.svelte';
 	import NodesPanel from '$lib/components/NodesPanel.svelte';
 	import Panel from '$lib/components/Panel.svelte';
@@ -15,7 +16,7 @@
 
 	const typeLabels: Record<string, string> = {
 		consumption: 'Run',
-		reward: 'Reward',
+		reward: 'Host reward',
 		fee: 'Fee',
 		grant: 'Top-up'
 	};
@@ -46,6 +47,10 @@
 
 	<div class="mt-8 grid gap-8 lg:grid-cols-2">
 		<NodPanel address={data.profile?.wallet_address ?? null} />
+		<HostPanel />
+	</div>
+
+	<div class="mt-8">
 		<NodesPanel />
 	</div>
 
@@ -55,7 +60,7 @@
 				<div class="flex flex-col items-center gap-4 py-10 text-center">
 					<p class="text-fg-muted">No activity yet.</p>
 					<p class="max-w-sm text-sm text-fg-subtle">
-						Run inference in the playground — each run is recorded here.
+						Run a prompt or host a GPU — spend and host rewards show up here.
 					</p>
 					<Button href="/playground" variant="secondary" size="sm">
 						<Sparkles class="size-4" />

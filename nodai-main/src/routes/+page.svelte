@@ -34,9 +34,9 @@
 		{
 			n: '03',
 			title: 'Earn NOD',
-			body: 'Every run is recorded and rewarded. The ledger is public, so you can check the maths.',
+			body: 'GPU hosts earn NOD for every job their machine completes. Claim it to a Solana wallet.',
 			detail:
-				`Spend ${NOD.costPerInference} NOD, earn ${NOD.rewardPerInference} NOD back. Claim rewards to a connected Solana wallet when you are ready.`
+				`Users spend ${NOD.costPerInference} NOD per run. The host who answers it earns ${NOD.hostRewardPerJob} NOD. Claim from the dashboard.`
 		}
 	];
 
@@ -61,7 +61,7 @@
 		{
 			icon: Cpu,
 			title: 'GPU operators',
-			body: 'Register hardware with the node CLI. Heartbeat, pull jobs, run vLLM locally, submit results.'
+			body: 'Create an API key on the dashboard, start nodai-node, and earn NOD for every job your GPU finishes.'
 		}
 	];
 
@@ -72,11 +72,11 @@
 		},
 		{
 			q: 'How much does a run cost?',
-			a: `Each playground run costs ${NOD.costPerInference} NOD and returns ${NOD.rewardPerInference} NOD as a pending reward you can claim from the dashboard.`
+			a: `Each playground run costs ${NOD.costPerInference} NOD. The GPU host who completes it earns ${NOD.hostRewardPerJob} NOD, claimable from their dashboard.`
 		},
 		{
 			q: 'Do I need a wallet to start?',
-			a: 'No. Sign up, get test credit, and run inference immediately. Connect Phantom only when you want to claim rewards on-chain.'
+			a: 'No. Sign up, get test credit, and run inference immediately. Hosts connect Phantom when they want to claim earnings on-chain.'
 		},
 		{
 			q: 'Is the model actually running?',
@@ -84,7 +84,7 @@
 		},
 		{
 			q: 'Can I attach my own GPU?',
-			a: 'Yes. Open Host GPU in the nav. Install Node.js, start vLLM on your PC, then run nodai-node start against the live site.'
+			a: 'Yes. Sign in, create an API key on the dashboard, start vLLM, then run nodai-node start and paste the key.'
 		}
 	];
 
@@ -103,7 +103,8 @@
 	let nodesOnline = $state<number | null>(null);
 
 	const spend = $derived(runs * NOD.costPerInference);
-	const earn = $derived(runs * NOD.rewardPerInference);
+	const earn = $derived(runs * NOD.hostRewardPerJob);
+	const fee = $derived(runs * NOD.feePerInference);
 	const featured = $derived(data.models[0] ?? null);
 	const startHref = $derived(data.signedIn ? '/playground' : '/signup');
 	const startLabel = $derived(data.signedIn ? 'Open playground' : 'Get started');
@@ -351,14 +352,14 @@
 		<p class="mono-label">Economy</p>
 		<h2 class="mt-4 text-3xl font-semibold md:text-4xl">The maths is public.</h2>
 		<p class="mt-4 max-w-2xl leading-relaxed text-fg-muted">
-			Drag the slider to see what a day of testing looks like. Credit pays for runs; rewards wait
-			on the dashboard until you claim them.
+			Drag the slider to see a day of hosting. Users pay for runs. GPU hosts earn. The rest is
+			the platform fee.
 		</p>
 
 		<div class="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
 			<div class="rounded-2xl border border-line bg-surface p-6 md:p-8">
 				<label for="runs" class="flex items-center justify-between gap-4">
-					<span class="text-fg">Runs today</span>
+					<span class="text-fg">Jobs your GPU completes</span>
 					<span class="font-mono text-accent-fg">{runs}</span>
 				</label>
 				<input
@@ -371,16 +372,16 @@
 				/>
 				<div class="mt-8 grid grid-cols-3 gap-4">
 					<div>
-						<p class="mono-label">Spend</p>
+						<p class="mono-label">Users spend</p>
 						<p class="mt-2 font-mono text-xl text-fg">{spend.toFixed(3)}</p>
 					</div>
 					<div>
-						<p class="mono-label">Earn</p>
+						<p class="mono-label">You earn</p>
 						<p class="mt-2 font-mono text-xl text-success">{earn.toFixed(3)}</p>
 					</div>
 					<div>
-						<p class="mono-label">Net</p>
-						<p class="mt-2 font-mono text-xl text-fg">{(earn - spend).toFixed(3)}</p>
+						<p class="mono-label">Platform</p>
+						<p class="mt-2 font-mono text-xl text-fg">{fee.toFixed(3)}</p>
 					</div>
 				</div>
 			</div>

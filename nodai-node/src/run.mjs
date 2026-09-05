@@ -20,6 +20,7 @@ export async function runWorker(config, { once = false } = {}) {
 	log(`Local AI: ${config.vllmUrl}`);
 
 	const health = await checkVllm(config);
+	const servedModel = health.models[0] ?? '';
 	log(`vLLM models: ${health.models.join(', ') || 'none'}`);
 
 	let lastHeartbeat = 0;
@@ -39,7 +40,7 @@ export async function runWorker(config, { once = false } = {}) {
 
 		if (now - lastHeartbeat >= config.heartbeatIntervalMs) {
 			try {
-				await sendHeartbeat(config);
+				await sendHeartbeat(config, servedModel);
 				lastHeartbeat = now;
 			} catch (error) {
 				log(`Heartbeat failed: ${error.message}`);
@@ -66,7 +67,7 @@ export async function runWorker(config, { once = false } = {}) {
 
 		try {
 			const result = await runInference(config, job);
-			await completeJob(config, job.id, {
+			const completed = await completeJob(config, job.id, {
 				response: result.response,
 				tokens_used: result.tokensUsed,
 				latency_ms: result.latencyMs,
@@ -74,7 +75,10 @@ export async function runWorker(config, { once = false } = {}) {
 			});
 			log(
 				`Done. Sent the answer back` +
-					(result.tokensUsed ? ` (${result.tokensUsed} tokens)` : '')
+					(result.tokensUsed ? ` (${result.tokensUsed} tokens)` : '') +
+					(typeof completed?.host_reward === 'number' && completed.host_reward > 0
+						? ` · host earned ${completed.host_reward} NOD`
+						: '')
 			);
 		} catch (error) {
 			log(`Job failed: ${error.message}`);

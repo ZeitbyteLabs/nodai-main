@@ -8,6 +8,7 @@
 		id: string;
 		label: string | null;
 		status: string;
+		served_model: string | null;
 		last_heartbeat: string | null;
 	};
 
@@ -60,7 +61,9 @@
 				<li class="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
 					<div class="min-w-0">
 						<p class="truncate text-fg">{node.label ?? `Node ${node.id.slice(0, 8)}`}</p>
-						<p class="mt-0.5 font-mono text-xs text-fg-subtle">{node.id.slice(0, 8)}…</p>
+						<p class="mt-0.5 font-mono text-xs text-fg-subtle">
+							{node.served_model ?? `${node.id.slice(0, 8)}…`}
+						</p>
 					</div>
 					<span
 						class="shrink-0 rounded-full px-2.5 py-1 font-mono text-xs capitalize
@@ -77,4 +80,4 @@
 		</ul>
 	{/if}
 </Panel>
-
+

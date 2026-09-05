@@ -12,8 +12,11 @@ export const LINKS = {
 
 /** Phase 2 pricing — hardcoded per the MVP spec. */
 export const NOD = {
+	/** Off-chain credit the playground user spends to queue a run. */
 	costPerInference: 0.01,
-	rewardPerInference: 0.005,
+	/** Claimable NOD paid to the GPU host who completed the job. */
+	hostRewardPerJob: 0.005,
+	/** Remainder kept by the platform (user spend minus host reward). */
 	feePerInference: 0.005,
 	/** Devnet faucet top-up for the off-chain inference credit. */
 	faucetAmount: 1

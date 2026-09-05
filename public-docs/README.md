@@ -4,7 +4,7 @@ Public documentation for NodAI users, developers, and GPU operators.
 
 | Doc | Audience |
 | --- | -------- |
-| [`UserGuide.md`](UserGuide.md) | End users — sign up, run inference, earn and claim NOD |
+| [`UserGuide.md`](UserGuide.md) | End users — sign up, run inference, spend NOD |
 | [`API.md`](API.md) | Developers — HTTP API reference |
 | [`NodeGuide.md`](NodeGuide.md) | GPU operators — install vLLM, download models, run nodai-node |
 
