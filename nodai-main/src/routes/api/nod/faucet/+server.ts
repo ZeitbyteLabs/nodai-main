@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import { NOD } from '$lib/config';
 import { createAdminClient } from '$lib/server/supabase-admin';
-import { cluster } from '$lib/server/solana';
+import { cluster } from '$lib/server/solana-config';
 import type { RequestHandler } from './$types';
 
 /**

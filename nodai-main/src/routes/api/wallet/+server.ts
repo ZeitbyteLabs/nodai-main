@@ -1,6 +1,15 @@
 import { json, error } from '@sveltejs/kit';
-import { PublicKey } from '@solana/web3.js';
 import type { RequestHandler } from './$types';
+
+async function isValidSolanaAddress(address: string) {
+	const { PublicKey } = await import('@solana/web3.js');
+	try {
+		new PublicKey(address);
+		return true;
+	} catch {
+		return false;
+	}
+}
 
 /** Persist the connected wallet address on the caller's profile. */
 export const POST: RequestHandler = async ({ request, locals: { supabase, user } }) => {
@@ -11,10 +20,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, user }
 
 	if (typeof address !== 'string') error(400, 'wallet_address is required.');
 
-	try {
-		// Rejects anything that is not a valid base58 Solana public key.
-		new PublicKey(address);
-	} catch {
+	if (!(await isValidSolanaAddress(address))) {
 		error(400, 'That is not a valid Solana address.');
 	}
 

@@ -1,6 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import { createAdminClient } from '$lib/server/supabase-admin';
-import { SolanaError, explorerTxUrl, isNodTokenConfigured, transferNod } from '$lib/server/solana';
+import { explorerTxUrl, isNodTokenConfigured } from '$lib/server/solana-config';
+import { SolanaError, transferNod } from '$lib/server/solana';
 import type { RequestHandler } from './$types';
 
 /**

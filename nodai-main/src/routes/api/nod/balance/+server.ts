@@ -2,9 +2,9 @@ import { json, error } from '@sveltejs/kit';
 import {
 	cluster,
 	explorerAddressUrl,
-	isNodTokenConfigured,
-	readNodBalance
-} from '$lib/server/solana';
+	isNodTokenConfigured
+} from '$lib/server/solana-config';
+import { readNodBalance } from '$lib/server/solana';
 import type { RequestHandler } from './$types';
 
 /**

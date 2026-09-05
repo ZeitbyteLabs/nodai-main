@@ -1,5 +1,4 @@
 import { json, error } from '@sveltejs/kit';
-import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { SOLANA_RPC_URL } from '$env/static/private';
 import type { RequestHandler } from './$types';
 
@@ -19,6 +18,7 @@ export const GET: RequestHandler = async ({ locals: { supabase, user } }) => {
 	if (!profile?.wallet_address) return json({ sol: null });
 
 	try {
+		const { Connection, LAMPORTS_PER_SOL, PublicKey } = await import('@solana/web3.js');
 		const connection = new Connection(SOLANA_RPC_URL, 'confirmed');
 		const lamports = await connection.getBalance(new PublicKey(profile.wallet_address));
 		return json({ sol: lamports / LAMPORTS_PER_SOL });

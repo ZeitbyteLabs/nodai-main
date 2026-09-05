@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { cluster } from '$lib/server/solana';
+import { cluster } from '$lib/server/solana-config';
 import type { Profile, Transaction } from '$lib/types/database';
 import type { PageServerLoad } from './$types';
 
