@@ -49,7 +49,13 @@ export const GET: RequestHandler = async ({ locals: { supabase, user } }) => {
 			mint,
 			explorer: explorerAddressUrl(profile.wallet_address)
 		});
-	} catch {
-		return json({ ...base, onChain: null, mint: null, explorer: null, unavailable: true });
+	} catch (cause) {
+		console.error('/api/nod/balance:', cause instanceof Error ? cause.message : cause);
+		return json({
+			...base,
+			onChain: null,
+			mint: null,
+			explorer: explorerAddressUrl(profile.wallet_address)
+		});
 	}
 };

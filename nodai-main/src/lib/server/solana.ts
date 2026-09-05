@@ -110,36 +110,66 @@ async function mintDecimals(conn: Awaited<ReturnType<typeof connection>>, mint: 
 	return cachedDecimals;
 }
 
+function isMissingTokenAccount(cause: unknown) {
+	if (!cause || typeof cause !== 'object') return false;
+
+	const name = 'name' in cause ? String(cause.name) : '';
+	if (name === 'TokenAccountNotFoundError' || name === 'TokenInvalidAccountOwnerError') {
+		return true;
+	}
+
+	const message = 'message' in cause ? String(cause.message) : String(cause);
+	return /could not find account|account does not exist|invalid account owner/i.test(message);
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number) {
+	return Promise.race([
+		promise,
+		new Promise<T>((_, reject) => {
+			setTimeout(() => reject(new Error('Solana RPC timeout')), ms);
+		})
+	]);
+}
+
 export type NodAccount = {
 	balance: number | null;
 	mint: string;
 };
 
 export async function readNodBalance(ownerAddress: string): Promise<NodAccount> {
-	const mint = await nodMint();
-	const owner = await parseOwner(ownerAddress);
-	const conn = await connection();
-	const {
-		getAssociatedTokenAddress,
-		getAccount,
-		TokenAccountNotFoundError,
-		TokenInvalidAccountOwnerError
-	} = await spl();
-
-	const ata = await getAssociatedTokenAddress(mint, owner);
+	const mintAddress = mintAddressConfigured();
 
 	try {
-		const account = await getAccount(conn, ata);
-		const decimals = await mintDecimals(conn, mint);
-		return { balance: fromBaseUnits(account.amount, decimals), mint: mint.toBase58() };
-	} catch (cause) {
-		if (
-			cause instanceof TokenAccountNotFoundError ||
-			cause instanceof TokenInvalidAccountOwnerError
-		) {
-			return { balance: null, mint: mint.toBase58() };
+		const mint = await nodMint();
+		const owner = await parseOwner(ownerAddress);
+		const conn = await connection();
+		const {
+			getAssociatedTokenAddress,
+			getAccount,
+			TokenAccountNotFoundError,
+			TokenInvalidAccountOwnerError
+		} = await spl();
+
+		const ata = await getAssociatedTokenAddress(mint, owner);
+
+		try {
+			const account = await withTimeout(getAccount(conn, ata), 8000);
+			const decimals = await withTimeout(mintDecimals(conn, mint), 8000);
+			return { balance: fromBaseUnits(account.amount, decimals), mint: mint.toBase58() };
+		} catch (cause) {
+			if (
+				cause instanceof TokenAccountNotFoundError ||
+				cause instanceof TokenInvalidAccountOwnerError ||
+				isMissingTokenAccount(cause)
+			) {
+				return { balance: null, mint: mint.toBase58() };
+			}
+			throw cause;
 		}
-		throw cause;
+	} catch (cause) {
+		// Devnet public RPC often rate-limits serverless hosts — don't break the dashboard.
+		console.error('readNodBalance:', cause instanceof Error ? cause.message : cause);
+		return { balance: null, mint: mintAddress || '' };
 	}
 }
 

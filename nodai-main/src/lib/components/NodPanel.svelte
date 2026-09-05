@@ -19,7 +19,6 @@
 		walletLinked: boolean;
 		configured: boolean;
 		onChain: number | null;
-		unavailable?: boolean;
 	};
 
 	let nod = $state<NodState | null>(null);
@@ -203,8 +202,6 @@
 			<Alert tone="info">NOD rewards are not available yet.</Alert>
 		{:else if !loading && !wallet.address}
 			<Alert tone="info">Connect a wallet to claim your earned NOD.</Alert>
-		{:else if nod?.unavailable}
-			<Alert>Could not load wallet balance. Try again shortly.</Alert>
 		{/if}
 
 		{#if wallet.error}
