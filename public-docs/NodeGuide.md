@@ -192,7 +192,7 @@ When it says **this PC is online**, it appears under **Your GPUs** on the host d
 To test earnings with two accounts:
 
 1. On the **user** account: Dashboard → **Get NOD** → Playground → **Run**
-2. Terminal B should show `Got a job` → `Done` · host earned 0.005 NOD
+2. Terminal B should show `Got a job` → `Done` · host earned a share of the token cost
 3. On the **host** account: Dashboard shows the job, **To claim** increases, Claim pays the wallet
 
 Already registered without a key? Run `nodai-node start` again and paste the API key when asked (or `--api-key nod_…`). That links this PC to your account.

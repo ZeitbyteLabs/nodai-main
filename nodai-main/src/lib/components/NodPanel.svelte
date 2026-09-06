@@ -156,8 +156,8 @@
 		</div>
 
 		<p class="text-[0.9375rem] leading-relaxed text-fg-muted">
-			Runs cost {NOD.costPerInference} NOD. GPU hosts earn {NOD.hostRewardPerJob} NOD per
-			completed job.
+			Runs are priced by output tokens ({NOD.pricePer1kOutputTokens} NOD / 1K). Hosts earn
+			{NOD.hostShare * 100}% of what the user paid.
 		</p>
 
 		{#if wallet.address}

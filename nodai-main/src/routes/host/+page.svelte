@@ -20,8 +20,8 @@
 		<h1 class="mt-4 text-4xl font-semibold md:text-5xl">Connect your GPU</h1>
 		<p class="mt-4 leading-relaxed text-fg-muted">
 			Your PC runs the AI model with vLLM. NodAI only sends jobs. You earn
-			<span class="font-mono text-fg">{NOD.hostRewardPerJob} NOD</span> per completed job on the
-			account that owns your API key.
+			<span class="font-mono text-fg">{NOD.hostShare * 100}%</span> of the output-token cost
+			({NOD.pricePer1kOutputTokens} NOD / 1K tokens) on the account that owns your API key.
 		</p>
 	</header>
 

@@ -56,10 +56,17 @@ export async function runInference(config, job) {
 
 	const text = body?.choices?.[0]?.message?.content?.trim() ?? '';
 	const usage = body?.usage ?? {};
+	const promptTokens = Number.isFinite(usage.prompt_tokens) ? Number(usage.prompt_tokens) : null;
+	const completionTokens = Number.isFinite(usage.completion_tokens)
+		? Number(usage.completion_tokens)
+		: null;
+	const totalTokens = Number.isFinite(usage.total_tokens) ? Number(usage.total_tokens) : null;
 
 	return {
 		response: text,
-		tokensUsed: usage.total_tokens ?? null,
+		promptTokens,
+		completionTokens,
+		tokensUsed: completionTokens ?? totalTokens,
 		latencyMs: Date.now() - started,
 		model
 	};

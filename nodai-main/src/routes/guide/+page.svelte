@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { NOD, LINKS } from '$lib/config';
+	import { INFERENCE_LIMITS, NOD, LINKS } from '$lib/config';
+	import { reserveForMaxTokens } from '$lib/pricing';
 	import Button from '$lib/components/Button.svelte';
 	import Panel from '$lib/components/Panel.svelte';
 </script>
@@ -35,9 +36,13 @@
 
 		<Panel label="2 · Get NOD credit">
 			<p class="text-[0.9375rem] leading-relaxed text-fg-muted">
-				Each inference run costs <span class="font-mono text-fg">{NOD.costPerInference} NOD</span>.
-				On the dashboard, tap <strong class="text-fg">Get NOD</strong> to add test credit for devnet
-				testing. Your balance pays for runs; it is separate from on-chain NOD in your wallet.
+				You pay by <strong class="text-fg">output tokens</strong> —
+				<span class="font-mono text-fg">{NOD.pricePer1kOutputTokens} NOD</span> per 1,000 tokens
+				(minimum <span class="font-mono text-fg">{NOD.minCharge} NOD</span>). A typical run with
+				{INFERENCE_LIMITS.defaultMaxTokens} max tokens reserves
+				<span class="font-mono text-fg">{reserveForMaxTokens(INFERENCE_LIMITS.defaultMaxTokens)} NOD</span>;
+				unused reserve is refunded. On the dashboard, tap <strong class="text-fg">Get NOD</strong>
+				for test credit. Your balance pays for runs; it is separate from on-chain NOD in your wallet.
 			</p>
 		</Panel>
 
@@ -50,8 +55,8 @@
 				</p>
 				<p>
 					Running a prompt spends credit. It does not earn NOD. GPU hosts earn
-					<span class="font-mono text-fg">{NOD.hostRewardPerJob} NOD</span> when their machine
-					completes the job.
+					<span class="font-mono text-fg">{NOD.hostShare * 100}%</span> of the settled token cost
+					when their machine completes the job.
 				</p>
 				<Button href="/playground" size="sm" variant="secondary">Open playground</Button>
 			</div>

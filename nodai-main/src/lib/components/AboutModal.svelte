@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Dialog } from 'bits-ui';
-	import { NOD, SITE } from '$lib/config';
+	import { INFERENCE_LIMITS, NOD, SITE } from '$lib/config';
+	import { reserveForMaxTokens } from '$lib/pricing';
 	import Button from './Button.svelte';
 
 	let { open = $bindable(false) }: { open?: boolean } = $props();
@@ -37,7 +38,7 @@
 					</li>
 					<li class="flex gap-3">
 						<span class="font-mono text-accent-fg">3</span>
-						<span><strong class="text-fg">Earn NOD</strong> — hosts earn {NOD.hostRewardPerJob} NOD per job their GPU completes. Users pay {NOD.costPerInference} NOD to run.</span>
+						<span><strong class="text-fg">Earn NOD</strong> — hosts earn {NOD.hostShare * 100}% of output-token spend. Users pay {NOD.pricePer1kOutputTokens} NOD per 1K tokens (a typical run reserves ~{reserveForMaxTokens(INFERENCE_LIMITS.defaultMaxTokens)} NOD).</span>
 					</li>
 				</ol>
 

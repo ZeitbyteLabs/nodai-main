@@ -1,5 +1,6 @@
 import { error, json } from '@sveltejs/kit';
-import { NOD, INFERENCE_LIMITS } from '$lib/config';
+import { INFERENCE_LIMITS } from '$lib/config';
+import { reserveForMaxTokens } from '$lib/pricing';
 import { createAdminClient } from '$lib/server/supabase-admin';
 import type { RequestHandler } from './$types';
 
@@ -9,7 +10,7 @@ function clamp(value: number, min: number, max: number) {
 
 /**
  * Queues an inference job for a GPU node to pick up.
- * Charges NOD up front — refunded if the node run fails.
+ * Reserves NOD for max_tokens up front; unused reserve is refunded on complete.
  */
 export const POST: RequestHandler = async ({ request, locals: { user } }) => {
 	if (!user) error(401, 'Sign in to queue a job.');
@@ -40,6 +41,7 @@ export const POST: RequestHandler = async ({ request, locals: { user } }) => {
 			INFERENCE_LIMITS.maxMaxTokens
 		)
 	);
+	const reserved = reserveForMaxTokens(maxTokens);
 
 	const admin = createAdminClient();
 
@@ -53,12 +55,12 @@ export const POST: RequestHandler = async ({ request, locals: { user } }) => {
 
 	const { data: balanceAfterDebit, error: debitError } = await admin.rpc('debit_nod', {
 		p_user_id: user.id,
-		p_amount: NOD.costPerInference
+		p_amount: reserved
 	});
 
 	if (debitError) {
 		if (debitError.message.includes('INSUFFICIENT_NOD_BALANCE')) {
-			error(402, `Not enough NOD. Each run costs ${NOD.costPerInference} NOD.`);
+			error(402, `Not enough NOD. This run reserves up to ${reserved} NOD.`);
 		}
 		error(500, 'Could not reserve NOD for this job.');
 	}
@@ -77,14 +79,14 @@ export const POST: RequestHandler = async ({ request, locals: { user } }) => {
 		.single();
 
 	if (jobError || !job) {
-		await admin.rpc('credit_nod', { p_user_id: user.id, p_amount: NOD.costPerInference });
+		await admin.rpc('credit_nod', { p_user_id: user.id, p_amount: reserved });
 		error(500, 'Could not queue the job.');
 	}
 
 	await admin.from('transactions').insert({
 		user_id: user.id,
 		type: 'consumption',
-		amount: NOD.costPerInference,
+		amount: reserved,
 		status: 'confirmed',
 		job_id: job.id
 	});
@@ -93,7 +95,9 @@ export const POST: RequestHandler = async ({ request, locals: { user } }) => {
 		{
 			job_id: job.id,
 			status: job.status,
-			cost: NOD.costPerInference,
+			reserved,
+			cost: reserved,
+			max_tokens: maxTokens,
 			balance: Number(balanceAfterDebit),
 			created_at: job.created_at
 		},

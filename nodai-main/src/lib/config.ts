@@ -10,14 +10,14 @@ export const LINKS = {
 	discord: import.meta.env.PUBLIC_DISCORD_URL?.trim() ?? ''
 };
 
-/** Phase 2 pricing — hardcoded per the MVP spec. */
+/** Token pricing — users pay for output tokens; hosts earn a share. */
 export const NOD = {
-	/** Off-chain credit the playground user spends to queue a run. */
-	costPerInference: 0.01,
-	/** Claimable NOD paid to the GPU host who completed the job. */
-	hostRewardPerJob: 0.005,
-	/** Remainder kept by the platform (user spend minus host reward). */
-	feePerInference: 0.005,
+	/** NOD charged per 1,000 output (completion) tokens. */
+	pricePer1kOutputTokens: 0.02,
+	/** Floor so a tiny reply still covers ledger dust. */
+	minCharge: 0.001,
+	/** Fraction of the user's settled cost paid to the GPU host. */
+	hostShare: 0.5,
 	/** Devnet faucet top-up for the off-chain inference credit. */
 	faucetAmount: 1
 };

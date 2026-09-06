@@ -121,8 +121,9 @@
 <Panel label="Your GPUs">
 	<div class="flex flex-col gap-6">
 		<p class="text-[0.9375rem] leading-relaxed text-fg-muted">
-			Hosts earn <span class="font-mono text-fg">{NOD.hostRewardPerJob} NOD</span> per completed
-			job. Create an API key, then paste it into
+			Hosts earn <span class="font-mono text-fg">{NOD.hostShare * 100}%</span> of each run’s
+			output-token cost ({NOD.pricePer1kOutputTokens} NOD / 1K tokens). Create an API key, then
+			paste it into
 			<span class="font-mono text-fg">nodai-node start</span>.
 		</p>
 

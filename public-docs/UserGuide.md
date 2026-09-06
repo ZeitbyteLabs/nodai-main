@@ -16,7 +16,7 @@ How to use NodAI from sign-up through your first inference run. GPU hosts earn N
 
 ## 2. Get NOD credit
 
-Inference runs cost **0.01 NOD** each. For devnet testing:
+Inference is priced by **output tokens**: **0.02 NOD per 1,000 tokens** (minimum **0.001 NOD**). A typical run reserves a few hundredths of NOD and refunds what you do not use. For devnet testing:
 
 1. Open the **Dashboard**.
 2. In the NOD panel, click **Get NOD**.
@@ -32,7 +32,7 @@ This is separate from NOD in your Solana wallet (claimed rewards).
 2. Write a prompt (up to 8,000 characters).
 3. Adjust **Temperature** and **Max tokens** if needed.
 4. Click **Run** — the job waits until a community GPU picks it up.
-5. Each run costs **0.01 NOD**. You do not earn NOD by running prompts — hosts earn when their GPU finishes the job.
+5. You pay for the **output tokens** actually generated. You do not earn NOD by running prompts — hosts earn a share of that token cost.
 
 If the run button is disabled:
 

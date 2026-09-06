@@ -11,6 +11,7 @@
 		Zap
 	} from '@lucide/svelte';
 	import { NOD } from '$lib/config';
+	import { hostRewardForCost, platformFeeForCost, priceForOutputTokens } from '$lib/pricing';
 	import Button from '$lib/components/Button.svelte';
 	import HeroNetwork from '$lib/components/HeroNetwork.svelte';
 
@@ -29,14 +30,14 @@
 			title: 'Run AI',
 			body: 'Send a prompt. A community GPU on someone\'s machine answers it. NodAI does not rent cloud GPUs.',
 			detail:
-				'The playground queues a job. A PC running nodai-node pulls it, runs the model locally, and sends the answer back. Each run costs a fixed amount of NOD.'
+				'The playground queues a job. A PC running nodai-node pulls it, runs the model locally, and sends the answer back. You pay for output tokens — unused reserve is refunded.'
 		},
 		{
 			n: '03',
 			title: 'Earn NOD',
-			body: 'GPU hosts earn NOD for every job their machine completes. Claim it to a Solana wallet.',
+			body: 'GPU hosts earn a share of every output token their machine generates. Claim it to a Solana wallet.',
 			detail:
-				`Users spend ${NOD.costPerInference} NOD per run. The host who answers it earns ${NOD.hostRewardPerJob} NOD. Claim from the dashboard.`
+				`Users pay ${NOD.pricePer1kOutputTokens} NOD per 1,000 output tokens. Hosts earn ${NOD.hostShare * 100}% of that. Claim from the dashboard.`
 		}
 	];
 
@@ -61,7 +62,7 @@
 		{
 			icon: Cpu,
 			title: 'GPU operators',
-			body: 'Create an API key on the dashboard, start nodai-node, and earn NOD for every job your GPU finishes.'
+			body: 'Create an API key on the dashboard, start nodai-node, and earn NOD for every output token your GPU generates.'
 		}
 	];
 
@@ -72,7 +73,7 @@
 		},
 		{
 			q: 'How much does a run cost?',
-			a: `Each playground run costs ${NOD.costPerInference} NOD. The GPU host who completes it earns ${NOD.hostRewardPerJob} NOD, claimable from their dashboard.`
+			a: `You pay ${NOD.pricePer1kOutputTokens} NOD per 1,000 output tokens (minimum ${NOD.minCharge} NOD). The GPU host earns ${NOD.hostShare * 100}% of what you paid.`
 		},
 		{
 			q: 'Do I need a wallet to start?',
@@ -97,14 +98,14 @@
 
 	let activeStep = $state(0);
 	let openFaq = $state<number | null>(0);
-	let runs = $state(8);
+	let tokens = $state(2000);
 	let exampleIndex = $state(0);
 	let typed = $state('');
 	let nodesOnline = $state<number | null>(null);
 
-	const spend = $derived(runs * NOD.costPerInference);
-	const earn = $derived(runs * NOD.hostRewardPerJob);
-	const fee = $derived(runs * NOD.feePerInference);
+	const spend = $derived(priceForOutputTokens(tokens));
+	const earn = $derived(hostRewardForCost(spend));
+	const fee = $derived(platformFeeForCost(spend));
 	const featured = $derived(data.models[0] ?? null);
 	const startHref = $derived(data.signedIn ? '/playground' : '/signup');
 	const startLabel = $derived(data.signedIn ? 'Open playground' : 'Get started');
@@ -213,8 +214,8 @@
 				</p>
 			</div>
 			<div class="bg-ink/70 p-5">
-				<p class="mono-label">Run cost</p>
-				<p class="mt-2 font-mono text-lg text-fg">{NOD.costPerInference} NOD</p>
+				<p class="mono-label">Token price</p>
+				<p class="mt-2 font-mono text-lg text-fg">{NOD.pricePer1kOutputTokens} / 1K</p>
 			</div>
 		</div>
 	</div>
@@ -352,22 +353,23 @@
 		<p class="mono-label">Economy</p>
 		<h2 class="mt-4 text-3xl font-semibold md:text-4xl">The maths is public.</h2>
 		<p class="mt-4 max-w-2xl leading-relaxed text-fg-muted">
-			Drag the slider to see a day of hosting. Users pay for runs. GPU hosts earn. The rest is
-			the platform fee.
+			Drag the slider to see token pricing. Users pay for output tokens. GPU hosts earn half.
+			The rest is the platform fee.
 		</p>
 
 		<div class="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
 			<div class="rounded-2xl border border-line bg-surface p-6 md:p-8">
-				<label for="runs" class="flex items-center justify-between gap-4">
-					<span class="text-fg">Jobs your GPU completes</span>
-					<span class="font-mono text-accent-fg">{runs}</span>
+				<label for="tokens" class="flex items-center justify-between gap-4">
+					<span class="text-fg">Output tokens hosted</span>
+					<span class="font-mono text-accent-fg">{tokens.toLocaleString()}</span>
 				</label>
 				<input
-					id="runs"
+					id="tokens"
 					type="range"
-					min="1"
-					max="40"
-					bind:value={runs}
+					min="50"
+					max="20000"
+					step="50"
+					bind:value={tokens}
 					class="mt-5 w-full accent-accent"
 				/>
 				<div class="mt-8 grid grid-cols-3 gap-4">

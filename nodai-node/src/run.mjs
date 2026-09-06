@@ -70,12 +70,15 @@ export async function runWorker(config, { once = false } = {}) {
 			const completed = await completeJob(config, job.id, {
 				response: result.response,
 				tokens_used: result.tokensUsed,
+				completion_tokens: result.completionTokens,
+				prompt_tokens: result.promptTokens,
 				latency_ms: result.latencyMs,
 				status: 'completed'
 			});
+			const tokenLabel = result.completionTokens ?? result.tokensUsed;
 			log(
 				`Done. Sent the answer back` +
-					(result.tokensUsed ? ` (${result.tokensUsed} tokens)` : '') +
+					(tokenLabel ? ` (${tokenLabel} output tokens)` : '') +
 					(typeof completed?.host_reward === 'number' && completed.host_reward > 0
 						? ` · host earned ${completed.host_reward} NOD`
 						: '')

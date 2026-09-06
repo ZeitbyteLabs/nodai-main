@@ -24,7 +24,7 @@ export const GET: RequestHandler = async ({ locals: { supabase, user } }) => {
 			.eq('status', 'pending')
 	]);
 
-	// Rewards accrue in 0.005 steps, so sum then round to the mint's precision.
+	// Host rewards are token-sized, so sum then round to the mint's precision.
 	const pendingReward = Number(
 		(pending ?? []).reduce((total, row) => total + Number(row.amount), 0).toFixed(9)
 	);

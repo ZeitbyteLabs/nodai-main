@@ -165,6 +165,7 @@ try {
 		body: JSON.stringify({
 			response: 'Hello',
 			tokens_used: 12,
+			completion_tokens: 12,
 			latency_ms: 450,
 			status: 'completed'
 		})
@@ -186,13 +187,15 @@ try {
 		JSON.stringify(stored[0])
 	);
 	check('job linked to node', stored[0]?.node_id === nodeId);
-	check('complete pays host', doneBody.host_reward === 0.005);
+	// 12 output tokens → min charge 0.001 NOD; host share 50% → 0.0005
+	check('complete pays host', Number(doneBody.host_reward) === 0.0005, String(doneBody.host_reward));
+	check('complete bills tokens', Number(doneBody.cost) === 0.001, String(doneBody.cost));
 
 	const hostRewards = await fetch(
 		`${BASE}/rest/v1/transactions?user_id=eq.${hostId}&type=eq.reward&job_id=eq.${jobId}&select=amount`,
 		{ headers: admin }
 	).then((r) => r.json());
-	check('host reward row', Number(hostRewards[0]?.amount) === 0.005);
+	check('host reward row', Number(hostRewards[0]?.amount) === 0.0005);
 
 	const userRewards = await fetch(
 		`${BASE}/rest/v1/transactions?user_id=eq.${userId}&type=eq.reward&job_id=eq.${jobId}&select=id`,

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { INFERENCE_LIMITS, NOD } from '$lib/config';
+	import { INFERENCE_LIMITS } from '$lib/config';
+	import { reserveForMaxTokens } from '$lib/pricing';
 	import { progress } from '$lib/progress.svelte';
 	import Alert from '$lib/components/Alert.svelte';
 	import Button from '$lib/components/Button.svelte';
@@ -26,12 +27,13 @@
 	let cancelled = false;
 
 	const selectedModel = $derived(data.models.find((m) => m.id === modelId) ?? null);
+	const estimatedCost = $derived(reserveForMaxTokens(maxTokens));
 	const canRun = $derived(
 		!running &&
 			prompt.trim().length > 0 &&
 			!!modelId &&
 			data.models.length > 0 &&
-			balance >= NOD.costPerInference
+			balance >= estimatedCost
 	);
 
 	const metrics = $derived([
@@ -74,7 +76,7 @@
 				output = typeof body.response === 'string' ? body.response : '';
 				tokensUsed = typeof body.tokens_used === 'number' ? body.tokens_used : null;
 				latencyMs = typeof body.latency_ms === 'number' ? body.latency_ms : null;
-				cost = typeof body.cost === 'number' ? body.cost : NOD.costPerInference;
+				cost = typeof body.cost === 'number' ? body.cost : estimatedCost;
 				phase = 'done';
 				return;
 			}
@@ -124,6 +126,7 @@
 			}
 
 			if (typeof detail.balance === 'number') balance = detail.balance;
+			if (typeof detail.cost === 'number') cost = detail.cost;
 			await pollJob(detail.job_id);
 		} catch (cause) {
 			if (!cancelled) {
@@ -151,8 +154,9 @@
 		<p class="mono-label">Playground</p>
 		<h1 class="mt-4 text-4xl font-semibold md:text-5xl">Run inference</h1>
 		<p class="mt-4 max-w-2xl leading-relaxed text-fg-muted">
-			Jobs go to community GPUs — NodAI does not run a cloud GPU. Each run costs
-			{NOD.costPerInference} NOD. Hosts earn {NOD.hostRewardPerJob} NOD for completing it.
+			Jobs go to community GPUs — NodAI does not run a cloud GPU. You pay for
+			<strong class="text-fg">output tokens</strong>. This run reserves up to
+			{estimatedCost.toFixed(3)} NOD; unused reserve is refunded.
 		</p>
 	</header>
 
@@ -209,9 +213,9 @@
 							<Alert>{errorMessage}</Alert>
 						{/if}
 
-						{#if balance < NOD.costPerInference}
+						{#if balance < estimatedCost}
 							<Alert>
-								Not enough NOD to run inference. Each run costs {NOD.costPerInference} NOD — top up
+								Not enough NOD. This run reserves {estimatedCost.toFixed(3)} NOD — top up
 								test credit on the
 								<a
 									href="/dashboard"
@@ -317,6 +321,7 @@
 							min={INFERENCE_LIMITS.minMaxTokens}
 							max={INFERENCE_LIMITS.maxMaxTokens}
 							step={16}
+							display={`${maxTokens} · max ${estimatedCost.toFixed(3)} NOD`}
 							disabled={running}
 						/>
 					</div>

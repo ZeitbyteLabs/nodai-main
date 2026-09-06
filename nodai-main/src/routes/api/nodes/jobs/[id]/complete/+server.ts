@@ -1,5 +1,5 @@
 import { json, error } from '@sveltejs/kit';
-import { NOD } from '$lib/config';
+import { refundReservedJob, settleCompletedJob } from '$lib/server/billing';
 import { createAdminClient } from '$lib/server/supabase-admin';
 import { authenticateNode, nodeAuthFailure } from '$lib/server/nodes';
 import type { RequestHandler } from './$types';
@@ -15,7 +15,10 @@ export const POST: RequestHandler = async ({ request, params }) => {
 
 	const body = await request.json().catch(() => null);
 	const response = typeof body?.response === 'string' ? body.response.trim() : '';
-	const tokensUsed = Number.isFinite(body?.tokens_used) ? Number(body.tokens_used) : null;
+	const totalTokens = Number.isFinite(body?.tokens_used) ? Number(body.tokens_used) : null;
+	const completionTokens = Number.isFinite(body?.completion_tokens)
+		? Number(body.completion_tokens)
+		: totalTokens;
 	const latencyMs = Number.isFinite(body?.latency_ms) ? Number(body.latency_ms) : null;
 	const failed = body?.status === 'failed' || !response;
 
@@ -25,7 +28,7 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		p_node_id: node.id,
 		p_job_id: params.id,
 		p_response: response,
-		p_tokens_used: tokensUsed,
+		p_tokens_used: completionTokens ?? totalTokens,
 		p_latency_ms: latencyMs,
 		p_status: failed ? 'failed' : 'completed'
 	});
@@ -38,31 +41,30 @@ export const POST: RequestHandler = async ({ request, params }) => {
 	}
 
 	if (failed) {
-		// Refund the user's inference credit when the node run fails.
-		await admin.rpc('credit_nod', { p_user_id: userId, p_amount: NOD.costPerInference });
-		await admin
-			.from('transactions')
-			.update({ status: 'failed' })
-			.eq('job_id', params.id)
-			.eq('type', 'consumption');
-
-		return json({ job_id: params.id, status: 'failed', refunded: true });
+		const { refunded } = await refundReservedJob(userId, params.id);
+		return json({ job_id: params.id, status: 'failed', refunded: refunded > 0 });
 	}
 
-	let hostReward = 0;
-	if (node.owner_id) {
-		await admin.rpc('record_run_rewards', {
-			p_user_id: node.owner_id,
-			p_job_id: params.id,
-			p_reward: NOD.hostRewardPerJob,
-			p_fee: 0
-		});
-		hostReward = NOD.hostRewardPerJob;
-	}
+	const { data: job } = await admin
+		.from('inference_jobs')
+		.select('max_tokens')
+		.eq('id', params.id)
+		.maybeSingle();
+
+	const settled = await settleCompletedJob({
+		userId,
+		jobId: params.id,
+		hostId: node.owner_id,
+		maxTokens: job?.max_tokens ?? null,
+		completionTokens,
+		totalTokens
+	});
 
 	return json({
 		job_id: params.id,
 		status: 'completed',
-		host_reward: hostReward
+		tokens_used: settled.tokens,
+		cost: settled.billed,
+		host_reward: settled.hostReward
 	});
 };

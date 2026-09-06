@@ -12,7 +12,9 @@ Base URL: your app origin (e.g. `http://localhost:5173`).
 
 Poll a job you queued. Requires sign-in.
 
-**Response:** `{ job_id, status, response, tokens_used, latency_ms, cost, balance }`
+**Response:** `{ job_id, status, response, tokens_used, latency_ms, reserved, cost, balance }`
+
+`cost` is the reserved max while queued, then the settled output-token charge when completed.
 
 Status: `queued` → `running` → `completed` or `failed`.
 
@@ -28,7 +30,7 @@ Retired. Use `POST /api/jobs`. The platform does not run a cloud GPU.
 
 ### `POST /api/jobs`
 
-Queue an inference job for GPU nodes. Requires sign-in. Debits NOD balance.
+Queue an inference job for GPU nodes. Requires sign-in. Reserves NOD for `max_tokens` (output). Unused reserve is refunded when the job completes.
 
 **Body:**
 
@@ -41,7 +43,7 @@ Queue an inference job for GPU nodes. Requires sign-in. Debits NOD balance.
 }
 ```
 
-**Response:** `{ "job_id": "uuid", "status": "queued" }`
+**Response:** `{ "job_id": "uuid", "status": "queued", "reserved": 0.01024, "cost": 0.01024 }`
 
 ---
 
@@ -172,9 +174,15 @@ Submit job result.
   "status": "completed",
   "response": "…",
   "tokens_used": 42,
+  "completion_tokens": 42,
+  "prompt_tokens": 18,
   "latency_ms": 1200
 }
 ```
+
+`completion_tokens` is what NodAI bills. `tokens_used` is a fallback (completion, else total).
+
+**Response:** `{ job_id, status, tokens_used, cost, host_reward }`
 
 **Body (failure):** `{ "status": "failed", "response": "" }`
 
@@ -193,12 +201,14 @@ See `[../nodai-node/README.md](../nodai-node/README.md)` for the `nodai-node` wo
 ## Economy (devnet MVP)
 
 
-| Action        | NOD    |
-| ------------- | ------ |
-| Run inference | −0.01  |
-| Host reward   | +0.005 |
-| Platform fee  | +0.005 |
-| Faucet top-up | +1.00  |
+| Action | NOD |
+| ------ | --- |
+| Output tokens | 0.02 per 1,000 (min 0.001) |
+| Reserved at queue | max_tokens × rate |
+| Settled at complete | actual output tokens × rate |
+| Host reward | 50% of settled cost |
+| Platform fee | 50% of settled cost |
+| Faucet top-up | +1.00 |
 
 
-All amounts are hardcoded in `nodai-main/src/lib/config.ts`.
+Rates live in `nodai-main/src/lib/config.ts`. Helpers are in `nodai-main/src/lib/pricing.ts`.

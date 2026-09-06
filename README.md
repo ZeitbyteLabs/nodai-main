@@ -27,6 +27,8 @@ npm run dev
 
 Inference needs a host PC, not env vars on the website.
 
+Pricing is **token-based**: **0.02 NOD per 1,000 output tokens** (minimum 0.001). Queue reserves `max_tokens`; unused reserve is refunded. Hosts earn **50%** of the settled cost.
+
 After pulling host-earnings changes, run `nodai-main/supabase/migrations/0005_host_earnings.sql` in the Supabase SQL Editor.
 
 ## Connect a home GPU to the live site
